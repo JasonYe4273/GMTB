@@ -12,6 +12,12 @@ class Triangle:
 
 	def is_empty(self) -> bool:
 		return typeof(self.o) == Empty
+class Direction:
+	X = 0
+	Y = 1
+	R = 2
+
+DIRECTIONS = [Direction.X, Direction.Y, Direction.R]
 
 class Object:
 	def __init__(x_loc: int, y_loc: int, rad: int):
@@ -27,13 +33,13 @@ class Object:
         self.y_location = y_loc
         self.rad_location = rad
     
-    def move(d: str):
+    def move(d: Direction):
         self.rad_location = (r+1)%2
-        if d=="N":
+        if d==Direction.X:
             self.y_location +=1
-        if d=="S":
+        if d==Direction.Y:
             self.y_location -=1
-        if d=="W":
+        if d==Direction.R:
             if self.rad_location==1:
                 self.x_location -=1
         if d=="E":
@@ -49,12 +55,12 @@ class Dice extends Object:
         self.current_face = orientation[0]
        	 
 
-    def roll(d: str):
-        if d=="N":
-            self.current_face = self.faces[self.current_face][1]    
-        if d=="S":
-            self.current_face = self.faces[self.current_face][0]
-        if d=="EW":
+    def roll(d: Direction):
+        if d==Direction.X:
+            self.current_face = self.faces[self.current_face][0]    
+        if d==Direction.Y:
+            self.current_face = self.faces[self.current_face][1]
+        if d==Direction.R:
             self.current_face = self.faces[self.current_face][2]
     
 

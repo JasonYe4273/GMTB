@@ -1,11 +1,5 @@
 import numpy
-from game_object import Triangle, Object, Empty
-
-class Direction:
-	X = 0
-	Y = 1
-	R = 2
-
+from game_object import Triangle, Object, Empty, Direction
 DIRECTIONS = [Direction.X, Direction.Y, Direction.R]
 
 class Grid:
