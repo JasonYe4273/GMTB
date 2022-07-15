@@ -1,3 +1,18 @@
+class Triangle:
+	o: Object
+
+	def __init__(self):
+		self.o = Empty()
+
+	def get_object(self) -> Object:
+		return self.o
+
+	def set_object(self, obj: Object) -> None:
+		self.o = obj
+
+	def is_empty(self) -> bool:
+		return typeof(self.o) == Empty
+
 class Object:
 	def __init__(int x_loc, int y_loc, int rad):
         self.x_location = x_loc
