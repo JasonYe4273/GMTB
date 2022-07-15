@@ -1,9 +1,33 @@
 import numpy
 from game_object import Object, Empty
 
+class Direction:
+	X = 0
+	Y = 1
+	R = 2
+
+DIRECTIONS = [Direction.X, Direction.Y, Direction.R]
+
+
+class Triangle:
+	o: Object
+
+	def __init__(self):
+		self.o = Empty()
+
+	def get_object(self) -> Object:
+		return self.o
+
+	def set_object(self, obj: Object) -> None:
+		self.o = obj
+
+	def is_empty(self) -> bool:
+		return typeof(self.o) == Empty
+
+
 class Grid:
 	def __init__(self, width: int, height: int):
-		self.grid = numpy.full((width, height, 2), Empty(), dtype=Object)
+		self.grid = numpy.full((width, height, 2), Triangle(), dtype=Triangle)
 
 	def _verify_coord(x: int, y: int, r: int, raise_if_bad: bool=True) -> bool:
 		if x < 0 or x >= self.grid.shape[0]:
@@ -20,25 +44,45 @@ class Grid:
 			return False
 		return True
 
+	def _add_dir(x: int, y: int, r: int, d: int) -> tuple[int, int, int]:
+		if d == Direction.R:
+			return (x, y, 1-r)
+
+		pm = 1 if r == 1 else -1
+		if d == Direction.X:
+			return (x+pm, y, 1-r)
+		if d == Direction.Y:
+			return (x, y+pm, 1-r)
+
 	def grid_get(self, x: int, y: int, r: int) -> Optional[Object]:
 		_verify_coord(x, y, r)
-		return self.grid[x][y][r]
+		return self.grid[x][y][r].get_object(o)
 
 	def grid_set(self, o: Object, x: int, y: int, r: int) -> None:
 		_verify_coord(x, y, r)
-		self.grid[x][y][r] = o
+		self.grid[x][y][r].set_object(o)
 
-	def grid_adj(self, x: int, y: int, r: int) -> set(Object):
+	def grid_adj(self, x: int, y: int, r: int) -> set(Direction):
 		_verify_coord(x, y, r)
-		adj: set[Object] = set()
+		adj: set[Direction] = set()
 
-		if _verify_coord(x, y, 1-r, False):
-			adj.add(self.grid[x][y][1-r])
-
-		pm = 1 if r == 1 else -1
-		if _verify_coord(x+pm, y, 1-r, False):
-			adj.add(self.grid[x+pm][y][1-r])
-		if _verify_coord(x, y+pm, 1-r, False):
-			adj.add(self.grid[x][y+pm][1-r])
-
+		for d in DIRECTIONS:
+			(x2, y2, r2) = _add_dir(x, y, r, d)
+			if _verify_coord(x2, y2, r2, False):
+				adj.add(d)
 		return adj
+
+	def grid_move(self, x: int, y: int, r: int, d: int) -> None:
+		_verify_coord(x,y,r)
+		o = self.grid[x][y][r].get_object()
+
+		(x2, y2, r2) = _add_dir(x, y, r, d)
+		_verify_coord(x2, y2, r2)
+
+		if not _self.grid[x2][y2][r2].is_empty():
+			raise Exception(f"Cannot move from ({x}, {y}, {r}) into nonempty space at ({x2}, {y2}, {r2})")
+
+		o.move(d)
+		self.grid[x2][y2][r2].set_object(o)
+		self.grid[x][y][r].set_object(Empty())
+
