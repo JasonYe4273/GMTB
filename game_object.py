@@ -1,5 +1,5 @@
 class Object:
-	def __init__(int x_loc, int y_loc, int rad):
+	def __init__(x_loc: int, y_loc: int, rad: int):
         self.x_location = x_loc
         self.y_location = y_loc
         self.rad_location = rad
@@ -7,12 +7,12 @@ class Object:
     def get_location():
         return (self.x_location, self.y_location, self.rad_location)
 
-    def set_location(int x_loc, int y_loc, int rad):
+    def set_location(x_loc: int, y_loc: int, rad: int):
         self.x_location = x_loc
         self.y_location = y_loc
         self.rad_location = rad
     
-    def move(str d):
+    def move(d: str):
         self.rad_location = (r+1)%2
         if d=="N":
             self.y_location +=1
@@ -27,13 +27,23 @@ class Object:
 
 
 class Dice extends Object:
-    def __init__(int x_loc, int y_loc, int rad, int[] orientation):
+    def __init__(x_loc: int, y_loc: int, rad int, faces: dict):
         super().__init__(x_loc, y_loc, rad)
         self.num = orientation.length
-        self.orientation = orientation
-        
+        self.faces = faces
+        self.current_face = orientation[0]
+       	 
+
+    def roll(d: str):
+        if d=="N":
+            self.current_face = self.faces[self.current_face][1]    
+        if d=="S":
+            self.current_face = self.faces[self.current_face][0]
+        if d=="EW":
+            self.current_face = self.faces[self.current_face][2]
+    
 
 
 class Player extends Object:
-    def __init__(int x_loc, int y_loc, int rad):
+    def __init__(x_loc: int, y_loc: int, rad: int):
         super().__init__(x_loc, y_loc, rad)
