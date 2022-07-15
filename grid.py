@@ -1,5 +1,5 @@
 import numpy
-from game_object import Triangle, Object, Empty
+from game_object import Object, Empty
 
 class Direction:
 	X = 0
@@ -7,6 +7,23 @@ class Direction:
 	R = 2
 
 DIRECTIONS = [Direction.X, Direction.Y, Direction.R]
+
+
+class Triangle:
+	o: Object
+
+	def __init__(self):
+		self.o = Empty()
+
+	def get_object(self) -> Object:
+		return self.o
+
+	def set_object(self, obj: Object) -> None:
+		self.o = obj
+
+	def is_empty(self) -> bool:
+		return typeof(self.o) == Empty
+
 
 class Grid:
 	def __init__(self, width: int, height: int):
@@ -65,6 +82,7 @@ class Grid:
 		if not _self.grid[x2][y2][r2].is_empty():
 			raise Exception(f"Cannot move from ({x}, {y}, {r}) into nonempty space at ({x2}, {y2}, {r2})")
 
-		o.move(d, r)
+		o.move(d)
 		self.grid[x2][y2][r2].set_object(o)
 		self.grid[x][y][r].set_object(Empty())
+
