@@ -1,19 +1,18 @@
 {
     "name":"Level 1-1",
-    "bounds":[[0,0,0],[4,2,0]],
+    "bounds":[[0,0,0],[3,2,0]],
     "objects":
     [
-        {"type":"wall", "loc":[3,0,0]},
-        {"type":"wall", "loc":[3,0,1]},
-        {"type":"d4", "loc":[0,1,0], "faces":[1,2,3,4]},
-        {"type":"d4", "loc":[1,1,0], "faces":[3,4,2,1]},
+        {"type":"wall", "loc":[3,2,0]},
+        {"type":"wall", "loc":[3,2,1]},
+        {"type":"d4", "loc":[0,1,1], "faces":[1,2,3,4]},
+        {"type":"d4", "loc":[1,1,1], "faces":[3,4,2,1]},
         {"type":"wall", "loc":[3,1,0]},
         {"type":"wall", "loc":[3,1,1]},
-        {"type":"wall", "loc":[0,2,0]}
-        {"type":"start", "loc":[0,2,1]},
-        {"type":"static", "loc":[2,2,0], "label":"-"},
-        {"type":"static", "loc":[3,2,0], "label":"="},
-        {"type":"static", "loc":[3,2,1], "label":"2"},
-        {"type":"wall", "loc":[4,2,0]},
+        {"type":"wall", "loc":[0,0,0]}
+        {"type":"start", "loc":[0,0,1]},
+        {"type":"static", "loc":[2,0,0], "label":"-"},
+        {"type":"static", "loc":[3,0,0], "label":"="},
+        {"type":"static", "loc":[3,0,1], "label":"2"},
     ]
 }
