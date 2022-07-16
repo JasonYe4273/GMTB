@@ -1,3 +1,5 @@
+import pygame
+
 class Direction:
     X = 0
     Y = 1
@@ -11,15 +13,15 @@ class Object:
         self.y_location = y_loc
         self.rad_location = rad
 
-    def get_location(self):
+    def get_location(self) -> None:
         return (self.x_location, self.y_location, self.rad_location)
 
-    def set_location(self, x_loc: int, y_loc: int, rad: int):
+    def set_location(self, x_loc: int, y_loc: int, rad: int) -> None:
         self.x_location = x_loc
         self.y_location = y_loc
         self.rad_location = rad
     
-    def move(self, d: Direction):
+    def move(self, d: Direction)-> None:
         self.rad_location = (r+1)%2
         if d==Direction.X:
             self.y_location +=1
@@ -31,6 +33,9 @@ class Object:
         if d=="E":
             if self.rad_location==0:
                 self.x_location +=1
+
+    def render(self, screen: pygame.Surface, left_corner: tuple[float, float]) -> None:
+        pass
 
 
 class Empty(Object):
@@ -46,7 +51,7 @@ class Dice(Object):
         self.current_face = orientation[0]
          
 
-    def roll(d: Direction):
+    def roll(d: Direction) -> None:
         if d==Direction.X:
             self.current_face = self.faces[self.current_face][0]    
         if d==Direction.Y:
