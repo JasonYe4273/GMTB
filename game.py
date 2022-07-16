@@ -5,8 +5,8 @@ from functools import partial
 from pygame_button import Button
 
 from grid import Grid
-from game_object import Object
-from styles import BUTTON_STYLE, WHITE, GREY
+from game_object import Object, Player, Dice, Wall
+from styles import BUTTON_STYLE, WHITE, GREY, RED
 
 # Import and initialize the pygame library
 import pygame
@@ -17,8 +17,11 @@ class Game:
     levels: dict
     buttons: list[Button]
 
+    running: bool
     paused: bool
     state: str
+
+    grid: Grid
 
     def __init__(self):
         pygame.init()
@@ -56,7 +59,19 @@ class Game:
         self.clear_screen()
         self.state = level_name
 
-        print(level_name)
+        level_spec = self.levels[level_name]
+
+        self.grid = Grid(level_spec["dim"][0], level_spec["dim"][1], self.screen)
+        self.grid.render_all()
+
+        for o in level_spec["objects"]:
+            (x, y, r) = o["loc"]
+            if o["type"] == "start":
+                self.grid.set_object(Player(x, y, r), x, y, r)
+            elif o["type"] == "d4":
+                self.grid.set_object(Dice(x, y, r, dict()), x, y, r)
+            elif o["type"] == "wall":
+                self.grid.set_object(Wall(x, y, r), x, y, r)
 
     # Render the menu
     def render_menu(self) -> None:
@@ -74,6 +89,10 @@ class Game:
                 **BUTTON_STYLE
             ))
             i += 1
+
+    # Quit
+    def quit(self) -> None:
+        self.running = False
 
     # Unpause
     def unpause(self) -> None:
@@ -99,19 +118,26 @@ class Game:
             (500, 350, 600, 50),
             GREY,
             self.render_menu,
-            text="Quit to menu",
+            text="Quit to main menu",
+            **BUTTON_STYLE
+        ))
+        self.buttons.append(Button(
+            (500, 400, 600, 50),
+            RED,
+            self.quit,
+            text="Quit",
             **BUTTON_STYLE
         ))
 
 
     def run(self) -> None:
         # Run until the user asks to quit
-        running = True
-        while running:
+        self.running = True
+        while self.running:
             # Did the user click the window close button?
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
+                    self.running = False
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
