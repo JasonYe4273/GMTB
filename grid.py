@@ -2,7 +2,7 @@ import numpy
 import math
 import pygame
 from game_object import *
-from styles import BLACK, WHITE, GREEN
+from styles import BLACK, WHITE, GREEN, DARK_GREEN
 
 class Direction:
     X = 0
@@ -226,8 +226,6 @@ class Grid:
     def render_all(self, mouse_pos: tuple[float, float]) -> None:
         (grid_x, grid_y) = self.shape()
 
-        (mouse_x, mouse_y, mouse_r) = self.screen_to_grid_coord(mouse_pos)
-
         # Draw horizontals
         for j in range(grid_y+1):
             x_offset = 2*grid_x*self.unit
@@ -275,12 +273,23 @@ class Grid:
                 (br[0] + offset - back_offset, br[1] - math.sqrt(3)*offset - math.sqrt(3)*back_offset),
             )
 
+        (mouse_x, mouse_y, mouse_r) = self.screen_to_grid_coord(mouse_pos)
+
+        color_grid = numpy.full([grid_x, grid_y, 2, 3], WHITE)
+        if self.player:
+            for d in self.grid_adj(self.player.x, self.player.y, self.player.r):
+                adj = self._add_dir(self.player.x, self.player.y, self.player.r, d)
+                if adj == (mouse_x, mouse_y, mouse_r):
+                    color_grid[adj] = GREEN
+                else:
+                    color_grid[adj] = DARK_GREEN
+
         # Render triangles
         shape = self.shape()
         for x in range(shape[0]):
             for y in range(shape[1]):
                 for r in range(2):
                     color = WHITE
-                    if x == mouse_x and y == mouse_y and r == mouse_r:
+                    if (x, y, r) == (mouse_x, mouse_y, mouse_r):
                         color = GREEN
-                    self.grid[x, y, r].render(color)
+                    self.grid[x, y, r].render(color_grid[x, y, r])
