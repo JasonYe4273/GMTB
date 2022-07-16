@@ -1,0 +1,33 @@
+{
+    "name":"Thunder's Biggest Challenge",
+    "dim":[4,5],
+    "objects":
+    [
+    	{"type":"start", "loc":[0,1,1]},
+    	{"type":"wall", "loc":[0,0,0]},
+    	{"type":"wall", "loc":[0,0,1]},
+    	{"type":"wall", "loc":[1,0,0]},
+    	{"type":"wall", "loc":[0,1,0]},
+    	{"type":"wall", "loc":[3,1,1]},
+    	{"type":"wall", "loc":[0,2,0]},
+    	{"type":"wall", "loc":[0,2,1]},
+    	{"type":"wall", "loc":[1,2,0]},
+    	{"type":"wall", "loc":[3,2,0]},
+    	{"type":"wall", "loc":[3,2,1]},
+    	{"type":"wall", "loc":[0,3,0]},
+    	{"type":"wall", "loc":[3,4,1]},
+    	{"type":"d4", "loc":[1,1,0], "faces":["x6","x9","x12","x3"]},
+    	{"type":"d4", "loc":[1,1,1], "faces":["/1","/3","/4","/2"]},
+    	{"type":"d4", "loc":[2,0,1], "faces":["=15","=16","=20","=12"]},
+    	{"type":"d4", "loc":[1,4,0], "faces":["1","8","2","4"]},
+    	{"type":"d4", "loc":[1,4,1], "faces":["x4","x3","x2","x1"]},
+    	{"type":"d4", "loc":[1,3,1], "faces":["-6","-4","-2","-8"]},
+    	{"type":"d4", "loc":[3,3,0], "faces":["2","3","4","1"]}
+    ],
+    "weather":
+    [
+        {"type":"front", "loc":[3,0,1]},
+        {"type":"front", "loc":[0,4,0]},
+        {"type":"front", "loc":[3,4,0]}
+    ]
+}
