@@ -1,6 +1,6 @@
 {
     "name":"A New Front-ier",
-    "dim":[2,0],
+    "dim":[3,1],
     "objects":
     [
         {"type":"start", "loc":[0,0,0]},

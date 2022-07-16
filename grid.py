@@ -186,22 +186,26 @@ class Grid:
         # Draw cross diagonals
         for i in range(grid_x):
             offset = i*self.unit
+            diag_length = min(grid_y, i)
+            back_offset = diag_length*self.unit
+
             pygame.draw.line(
                 self.screen,
                 BLACK,
                 (self.bl[0] + 2*offset, self.bl[1]),
-                (self.bl[0] + offset, self.bl[1] - math.sqrt(3)*offset),
+                (self.bl[0] + 2*offset - back_offset, self.bl[1] - math.sqrt(3)*back_offset),
             )
         for i in range(grid_y):
             br = (self.bl[0] + 2*grid_x*self.unit, self.bl[1])
-            tl = (self.bl[0] + grid_y*self.unit, self.bl[1] - math.sqrt(3)*grid_y*self.unit)
+            diag_length = min(grid_x, grid_y - i)
+            back_offset = diag_length*self.unit
 
             offset = i*self.unit
             pygame.draw.line(
                 self.screen,
                 BLACK,
                 (br[0] + offset, br[1] - math.sqrt(3)*offset),
-                (tl[0] + 2*offset, tl[1]),
+                (br[0] + offset - back_offset, br[1] - math.sqrt(3)*offset - math.sqrt(3)*back_offset),
             )
 
         # Render triangles
