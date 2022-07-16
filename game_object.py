@@ -38,7 +38,6 @@ class Object:
                 self.y +=1
 
     def render(self, screen: pygame.Surface, left_corner: tuple[float, float], unit: float) -> None:
-        print("Object")
         pass
 
     def render_static_image(self, screen: pygame.Surface, left_corner: tuple[float, float], unit: float, image: pygame.Surface) -> None:

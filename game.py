@@ -22,7 +22,6 @@ class Game:
     state: str
 
     grid: Grid
-    player: Player
 
     def __init__(self):
         pygame.init()
@@ -37,7 +36,6 @@ class Game:
         self.state = "menu"
 
         self.grid = None
-        self.player = None
 
         # Render the menu
         self.render_menu()
@@ -66,17 +64,7 @@ class Game:
         level_spec = self.levels[level_name]
 
         self.grid = Grid(level_spec["dim"][0], level_spec["dim"][1], self.screen)
-        self.grid.render_all()
-
-        for o in level_spec["objects"]:
-            (x, y, r) = o["loc"]
-            if o["type"] == "start":
-                self.player = Player(x, y, r)
-                self.grid.set_object(self.player, x, y, r)
-            elif o["type"] == "d4":
-                self.grid.set_object(Dice(x, y, r, dict()), x, y, r)
-            elif o["type"] == "wall":
-                self.grid.set_object(Wall(x, y, r), x, y, r)
+        self.grid.add_objects(level_spec["objects"])
 
     # Render the menu
     def render_menu(self) -> None:
@@ -150,12 +138,20 @@ class Game:
                             self.render_pause()
                         else:
                             self.unpause()
+                    if self.state in self.levels and not self.paused and event.key == pygame.K_r:
+                        print("Moving in the R direction")
+                        self.grid.move_player(Direction.R)
 
                 for b in self.buttons:
                     b.check_event(event)
 
             for b in self.buttons:
                 b.update(self.screen)
+
+            if self.state in self.levels:
+                self.clear_screen()
+                self.grid.render_all()
+
             # Display the screen
             pygame.display.update()
 

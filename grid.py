@@ -1,7 +1,7 @@
 import numpy
 import math
 import pygame
-from game_object import Object, Empty
+from game_object import *
 from styles import BLACK
 
 class Direction:
@@ -14,9 +14,11 @@ DIRECTIONS = [Direction.X, Direction.Y, Direction.R]
 
 class Triangle:
     o: Object                           # object in the triangle
+
     x: int                              # x-coordinate in the grid
     y: int                              # y-coordinate in the grid
     r: int                              # r-coordinate in the grid
+
     screen: pygame.Surface              # pygame screen to render to
     left_corner: tuple[float, float]    # pixel corner for the left corner of the triangle
     unit: float                         # pixel length of half of a triangle side
@@ -37,7 +39,6 @@ class Triangle:
     # Set the object in this triangle
     def set_object(self, obj: Object) -> None:
         self.o = obj
-        self.render()
 
     # Check if the triangle is empty
     def is_empty(self) -> bool:
@@ -49,15 +50,20 @@ class Triangle:
 
 
 class Grid:
-    MARGIN: int = 200       # pixel margin on the screen
-    grid: any               # array of triangles representing the grid
-    unit: float             # unit length in pixels equal to half of a triangle side
-    bl: tuple[float, float] # pixel coordinates for bottom left corner of the grid
-    screen: pygame.Surface  # pygame screen to render to
+    MARGIN: int = 200                   # pixel margin on the screen
+
+    grid: any                           # array of triangles representing the grid
+
+    unit: float                         # unit length in pixels equal to half of a triangle side
+    bl: tuple[float, float]             # pixel coordinates for bottom left corner of the grid
+    screen: pygame.Surface              # pygame screen to render to
+
+    player: Player                      # Player object
 
     def __init__(self, width: int, height: int, screen: pygame.Surface):
         self.screen = screen
         self.grid = numpy.full((width, height, 2), None)
+        self.player = None
 
         (screen_w, screen_h) = screen.get_size()
         (adj_w, adj_h) = (screen_w - self.MARGIN, screen_h - self.MARGIN)
@@ -149,6 +155,27 @@ class Grid:
 
         o.move(d)
         self.grid[x2, y2, r2].set_object(o)
+
+    # Add objects from level JSON
+    def add_objects(self, objects: any) -> None:
+        for o in objects:
+            (x, y, r) = o["loc"]
+            if o["type"] == "start":
+                self.player = Player(x, y, r)
+                self.set_object(self.player, x, y, r)
+            elif o["type"] == "d4":
+                d4 = Dice(x, y, r, dict())
+                self.set_object(d4, x, y, r)
+            elif o["type"] == "wall":
+                wall = Wall(x, y, r)
+                self.set_object(wall, x, y, r)
+
+
+    # Move player
+    def move_player(self, d: int) -> None:
+        if not self.player:
+            return
+        self.move_object(self.player.x, self.player.y, self.player.r, d)
 
 
     # Convert grid coordinates to pixel coordinates
