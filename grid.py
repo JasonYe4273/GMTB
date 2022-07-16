@@ -2,7 +2,7 @@ import numpy
 import math
 import pygame
 from game_object import *
-from styles import BLACK, WHITE, GREEN, DARK_GREEN
+from styles import *
 
 class Direction:
     X = 0
@@ -43,6 +43,10 @@ class Triangle:
     # Check if the triangle is empty
     def is_empty(self) -> bool:
         return type(self.o) == Empty
+
+    # Check if the object in the triangle is pushable
+    def is_pushable(self) -> bool:
+        return type(self.o) == Dice
 
     # Render the triangle
     def render(self, color: tuple[int, int, int]) -> None:
@@ -275,21 +279,62 @@ class Grid:
 
         (mouse_x, mouse_y, mouse_r) = self.screen_to_grid_coord(mouse_pos)
 
+        # Color grid based on player movement options
         color_grid = numpy.full([grid_x, grid_y, 2, 3], WHITE)
         if self.player:
             for d in self.grid_adj(self.player.x, self.player.y, self.player.r):
+                # Find all adjacent triangles
                 adj = self._add_dir(self.player.x, self.player.y, self.player.r, d)
-                if adj == (mouse_x, mouse_y, mouse_r):
+
+                # Can move to empty triangles
+                if self.grid[adj].is_empty():
                     color_grid[adj] = GREEN
-                else:
-                    color_grid[adj] = DARK_GREEN
+
+                # Can maybe move to pushable triangles
+                elif self.grid[adj].is_pushable():
+                    # Check whether you're mousing over the pushabale triangle or any of its adjacent triangles
+                    moused_over = adj == (mouse_x, mouse_y, mouse_r)
+                    if not moused_over:
+                        for adj_d in self.grid_adj(*adj):
+                            adj_adj = self._add_dir(*adj, adj_d)
+                            if adj_adj == (self.player.x, self.player.y, self.player.r):
+                                continue
+                                
+                            if adj_adj == (mouse_x, mouse_y, mouse_r):
+                                moused_over = True
+
+                    # Check adjacent triangles to the triangle you're pushing
+                    can_push = False
+                    for adj_d in self.grid_adj(*adj):
+                        adj_adj = self._add_dir(*adj, adj_d)
+                        if adj_adj == (self.player.x, self.player.y, self.player.r):
+                            continue
+
+                        # Can only push to empty triangles
+                        if self.grid[adj_adj].is_empty():
+                            can_push = True
+                            # Only color if moused over
+                            if moused_over:
+                                color_grid[adj_adj] = GREEN
+
+                    # Blue if you can push and it's moused-over, otherwise green.
+                    if can_push:
+                        if moused_over:
+                            color_grid[adj] = BLUE
+                        else:
+                            color_grid[adj] = GREEN
 
         # Render triangles
         shape = self.shape()
         for x in range(shape[0]):
             for y in range(shape[1]):
                 for r in range(2):
-                    color = WHITE
+                    # If mouseover, then turn the color lighter
+                    color = tuple(color_grid[x, y, r])
                     if (x, y, r) == (mouse_x, mouse_y, mouse_r):
-                        color = GREEN
-                    self.grid[x, y, r].render(color_grid[x, y, r])
+                        if color == GREEN:
+                            color = LIGHT_GREEN
+                        elif color == BLUE:
+                            color = LIGHT_BLUE
+
+                    self.grid[x, y, r].render(color)
