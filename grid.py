@@ -12,32 +12,36 @@ DIRECTIONS = [Direction.X, Direction.Y, Direction.R]
 
 
 class Triangle:
-    o: Object
-    x: int
-    y: int
+    o: Object   # object in the triangle
+    x: int      # x-coordinate in the grid
+    y: int      # y-coordinate in the grid
 
     def __init__(self, x_loc: int, y_loc: int, rad: int):
         self.o = Empty(x_loc, y_loc, rad)
         self.x = x_loc
         self.y = y_loc
 
+    # Get the object in this triangle
     def get_object(self) -> Object:
         return self.o
 
+    # Set the object in this triangle
     def set_object(self, obj: Object) -> None:
         self.o = obj
 
+    # Check if the triangle is empty
     def is_empty(self) -> bool:
         return typeof(self.o) == Empty
 
+    # Render the triangle
     def render(self, screen: pygame.Surface, left_corner: tuple[float, float]) -> None:
         self.o.render(screen, left_corner)
 
 
 class Grid:
-    grid: any
-    unit: float
-    bl: tuple[float, float]
+    grid: any               # array of triangles representing the grid
+    unit: float             # unit length in pixels equal to half of a triangle side
+    bl: tuple[float, float] # pixel coordinates for bottom left of corner of the grid
 
     def __init__(self, width: int, height: int):
         self.grid = numpy.full((width, height, 2), None)
@@ -46,6 +50,7 @@ class Grid:
                 for r in range(2):
                     self.grid[i, j, r] = Triangle(i, j, r)
 
+    # Verify that the coordinates are in the grid, and raise an exception if not
     def _verify_coord(x: int, y: int, r: int, raise_if_bad: bool=True) -> bool:
         if x < 0 or x >= self.grid.shape[0]:
             if raise_if_bad:
@@ -61,6 +66,7 @@ class Grid:
             return False
         return True
 
+    # Get the coordinates shifted in that direction
     def _add_dir(x: int, y: int, r: int, d: int) -> tuple[int, int, int]:
         if d == Direction.R:
             return (x, y, 1-r)
@@ -71,21 +77,26 @@ class Grid:
         if d == Direction.Y:
             return (x, y+pm, 1-r)
 
+    # Get the dimensions of the grid
     def shape(self) -> tuple[int, int]:
         return (self.grid.shape[0], self.grid.shape[1])
 
+    # Get the triangle at the given coordinates
     def get_triangle(self, x: int, y: int, r: int) -> Object:
         _verify_coord(x, y, r)
         return self.grid[x, y, r]
 
+    # Get the object at the given coordinates
     def get_object(self, x: int, y: int, r: int) -> Object:
         _verify_coord(x, y, r)
         return self.grid[x, y, r].get_object(o)
 
+    # Set the object at the given coordinates
     def set_object(self, o: Object, x: int, y: int, r: int) -> None:
         _verify_coord(x, y, r)
         self.grid[x, y, r].set_object(o)
 
+    # Get the directions adjacent to the given coordinates
     def grid_adj(self, x: int, y: int, r: int) -> set[Direction]:
         _verify_coord(x, y, r)
         adj: set[Direction] = set()
@@ -96,6 +107,7 @@ class Grid:
                 adj.add(d)
         return adj
 
+    # Move an object at the given coordinates in the given direction
     def move_object(self, x: int, y: int, r: int, d: int) -> None:
         _verify_coord(x,y,r)
         o = self.grid[x, y, r].get_object()
@@ -111,6 +123,7 @@ class Grid:
         self.grid[x, y, r].set_object(Empty())
 
 
+    # Convert grid coordinates to pixel coordinates
     def grid_to_screen_coord(self, x: int, y: int, r: int) -> tuple[float, float]:
         rhombus_bl = (self.bl[0] + 2*x*self.unit + y*self.unit, self.bl[1] - math.sqrt(3)*y*self.unit)
 
@@ -119,6 +132,7 @@ class Grid:
         else:
             return (rhombus_bl[0] + self.unit, rhombus_bl[1] + math.sqrt(3)*self.unit)
 
+    # Render the grid
     def render_all(self, screen: pygame.Surface) -> None:
         MARGIN = 200
 
