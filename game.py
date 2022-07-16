@@ -5,7 +5,7 @@ from functools import partial
 from pygame_button import Button
 
 from grid import Grid
-from game_object import Object, Player, Dice, Wall
+from game_object import Object, Player, Dice, Wall, Direction
 from styles import BUTTON_STYLE, WHITE, GREY, RED
 
 # Import and initialize the pygame library
@@ -22,6 +22,7 @@ class Game:
     state: str
 
     grid: Grid
+    player: Player
 
     def __init__(self):
         pygame.init()
@@ -34,6 +35,9 @@ class Game:
 
         self.paused = False
         self.state = "menu"
+
+        self.grid = None
+        self.player = None
 
         # Render the menu
         self.render_menu()
@@ -67,7 +71,8 @@ class Game:
         for o in level_spec["objects"]:
             (x, y, r) = o["loc"]
             if o["type"] == "start":
-                self.grid.set_object(Player(x, y, r), x, y, r)
+                self.player = Player(x, y, r)
+                self.grid.set_object(self.player, x, y, r)
             elif o["type"] == "d4":
                 self.grid.set_object(Dice(x, y, r, dict()), x, y, r)
             elif o["type"] == "wall":

@@ -41,7 +41,7 @@ class Triangle:
 
     # Check if the triangle is empty
     def is_empty(self) -> bool:
-        return typeof(self.o) == Empty
+        return type(self.o) == Empty
 
     # Render the triangle
     def render(self) -> None:
@@ -140,12 +140,15 @@ class Grid:
         (x2, y2, r2) = self._add_dir(x, y, r, d)
         self._verify_coord(x2, y2, r2)
 
-        if not _self.grid[x2, y2, r2].is_empty():
+        if not self.grid[x2, y2, r2].is_empty():
             raise Exception(f"Cannot move from ({x}, {y}, {r}) into nonempty space at ({x2}, {y2}, {r2})")
+        e = self.grid[x2, y2, r2].get_object()
+
+        e.move(d)
+        self.grid[x, y, r].set_object(e)
 
         o.move(d)
         self.grid[x2, y2, r2].set_object(o)
-        self.grid[x, y, r].set_object(Empty())
 
 
     # Convert grid coordinates to pixel coordinates
