@@ -83,7 +83,7 @@ class Dice(Object):
             self.current_face = self.faces[self.current_face][2]
 
     def render(self, screen: pygame.Surface, left_corner: tuple[float, float], unit: float) -> None:
-        self.render_static_image(screen, left_corner, unit, WALL_IMG)
+        pass#self.render_static_image(screen, left_corner, unit, WALL_IMG)
     
 
 

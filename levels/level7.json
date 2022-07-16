@@ -1,6 +1,7 @@
 {
     "name":"Thunder's Biggest Challenge",
     "dim":[4,5],
+    "level": 7,
     "objects":
     [
     	{"type":"start", "loc":[0,1,1]},

@@ -1,6 +1,7 @@
 {
     "name":"Branched Solutions",
     "dim": [4,4],
+    "level": 2,
     "objects":
     [
         {"type":"start", "loc":[2,1,1]},

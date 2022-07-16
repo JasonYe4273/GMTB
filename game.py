@@ -72,16 +72,14 @@ class Game:
         self.state = "menu"
 
         # Make a button for each level
-        i = 0
         for level_name in self.levels:
             self.buttons.append(Button(
-                (500, 200 + 50*i, 600, 50),
+                (500, 200 + 50*self.levels[level_name]["level"], 600, 50),
                 GREY,
                 partial(self.render_level, level_name),
                 text=level_name,
                 **BUTTON_STYLE
             ))
-            i += 1
 
     # Quit
     def quit(self) -> None:
@@ -138,9 +136,12 @@ class Game:
                             self.render_pause()
                         else:
                             self.unpause()
-                    if self.state in self.levels and not self.paused and event.key == pygame.K_r:
+                    elif self.state in self.levels and not self.paused and event.key == pygame.K_r:
                         print("Moving in the R direction")
                         self.grid.move_player(Direction.R)
+
+                if event.type == pygame.MOUSEBUTTONDOWN and self.state in self.levels and not self.paused:
+                    self.grid.handle_click(pygame.mouse.get_pos())
 
                 for b in self.buttons:
                     b.check_event(event)
@@ -148,9 +149,9 @@ class Game:
             for b in self.buttons:
                 b.update(self.screen)
 
-            if self.state in self.levels:
+            if self.state in self.levels and not self.paused:
                 self.clear_screen()
-                self.grid.render_all()
+                self.grid.render_all(pygame.mouse.get_pos())
 
             # Display the screen
             pygame.display.update()

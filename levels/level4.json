@@ -1,6 +1,7 @@
 {
     "name":"Ground Below",
     "dim":[5,5],
+    "level": 4,
     "objects":
     [
         {"type":"start", "loc":[4,0,1]},

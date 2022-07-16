@@ -2,7 +2,7 @@ import numpy
 import math
 import pygame
 from game_object import *
-from styles import BLACK
+from styles import BLACK, WHITE, GREEN
 
 class Direction:
     X = 0
@@ -45,8 +45,24 @@ class Triangle:
         return type(self.o) == Empty
 
     # Render the triangle
-    def render(self) -> None:
+    def render(self, color: tuple[int, int, int]) -> None:
+        pm = 1 if self.r == 1 else -1
+        margin = self.unit*0.05
+
+        pygame.draw.polygon(
+            self.screen,
+            [*color, 0.3],
+            [
+                (self.left_corner[0] + math.sqrt(3)*margin, self.left_corner[1] + pm*margin),
+                (self.left_corner[0] + 2*self.unit - math.sqrt(3)*margin, self.left_corner[1] + pm*margin),
+                (self.left_corner[0] + self.unit, self.left_corner[1] + pm*math.sqrt(3)*self.unit - 2*pm*margin)
+            ],
+        )
         self.o.render(self.screen, self.left_corner, self.unit)
+
+    # Click the triangle
+    def click(self) -> None:
+        pass
 
 
 class Grid:
@@ -187,9 +203,30 @@ class Grid:
         else:
             return (rhombus_bl[0] + self.unit, rhombus_bl[1] - math.sqrt(3)*self.unit)
 
+    # Convert pixel coordinates to grid coordinates
+    def screen_to_grid_coord(self, coordinates: tuple[float, float]) -> tuple[int, int, int]:
+        # Find the grid coordinates of the mouse
+        grid_y = (self.bl[1] - coordinates[1]) / (math.sqrt(3)*self.unit)
+        grid_x = (coordinates[0] - self.bl[0] - grid_y*self.unit) / (2*self.unit)
+
+        # Find the r coordinate by comparing it against the diagonal
+        x = math.floor(grid_x)
+        y = math.floor(grid_y)
+        r = 0 if grid_x + grid_y < x + y + 1 else 1
+        return (x, y, r)
+
+    # Handle mouse click
+    def handle_click(self, mouse_pos: tuple[float, float]) -> None:
+        (mouse_x, mouse_y, mouse_r) = self.screen_to_grid_coord(mouse_pos)
+
+        if self._verify_coord(mouse_x, mouse_y, mouse_r, False):
+            self.grid[mouse_x, mouse_y, mouse_r].click()
+
     # Render the grid
-    def render_all(self) -> None:
+    def render_all(self, mouse_pos: tuple[float, float]) -> None:
         (grid_x, grid_y) = self.shape()
+
+        (mouse_x, mouse_y, mouse_r) = self.screen_to_grid_coord(mouse_pos)
 
         # Draw horizontals
         for j in range(grid_y+1):
@@ -243,4 +280,7 @@ class Grid:
         for x in range(shape[0]):
             for y in range(shape[1]):
                 for r in range(2):
-                    self.grid[x, y, r].render()
+                    color = WHITE
+                    if x == mouse_x and y == mouse_y and r == mouse_r:
+                        color = GREEN
+                    self.grid[x, y, r].render(color)

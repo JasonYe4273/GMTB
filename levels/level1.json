@@ -1,6 +1,7 @@
 {
     "name":"Roll of the Dice",
     "dim": [3,3],
+    "level": 1,
     "objects":
     [
         {"type":"start", "loc":[0,0,1]},
