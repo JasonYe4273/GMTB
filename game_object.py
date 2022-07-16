@@ -27,15 +27,15 @@ class Object:
     def move(self, d: Direction) -> None:
         self.r = (r+1)%2
         if d==Direction.X:
-            self.y +=1
-        if d==Direction.Y:
-            self.y -=1
-        if d==Direction.R:
-            if self.r==1:
-                self.x -=1
-        if d=="E":
             if self.r==0:
                 self.x +=1
+            else:
+                self.x -= 1
+        if d==Direction.Y:
+            if self.r==0:
+                self.y -= 1
+            else:
+                self.y +=1
 
     def render(self, screen: pygame.Surface, left_corner: tuple[float, float], unit: float) -> None:
         print("Object")
