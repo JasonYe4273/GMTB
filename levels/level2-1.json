@@ -1,0 +1,15 @@
+{
+    "name":"A New Front-ier",
+    "bounds":[2,0],
+    "objects":
+    [
+        {"type":"start", "loc":[0,0,0]},
+        {"type":"wall", "loc":[2,0,1]},
+        {"type":"d4", "loc":[0,0,1], "faces":["2","3","1","4"]},
+        {"type":"d4", "loc":[2,0,0], "faces":["=3","=2","=1","=4"]}
+    ],
+    "weather":
+    [
+        {"type":"front", "loc":[1,0,0]}
+    ]
+}
