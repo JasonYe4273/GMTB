@@ -1,6 +1,6 @@
 {
     "name":"Disorder of Operations",
-    "bounds":[[0,0,0],[4,5,1]],
+    "dim": [5,6],
     "objects":
     [
         {"type":"start", "loc":[3,4,1]},

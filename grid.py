@@ -2,6 +2,7 @@ import numpy
 import math
 import pygame
 from game_object import Object, Empty
+from styles import BLACK
 
 class Direction:
     X = 0
@@ -12,14 +13,20 @@ DIRECTIONS = [Direction.X, Direction.Y, Direction.R]
 
 
 class Triangle:
-    o: Object   # object in the triangle
-    x: int      # x-coordinate in the grid
-    y: int      # y-coordinate in the grid
+    o: Object                           # object in the triangle
+    x: int                              # x-coordinate in the grid
+    y: int                              # y-coordinate in the grid
+    r: int                              # r-coordinate in the grid
+    screen: pygame.Surface              # pygame screen to render to
+    left_corner: tuple[float, float]    # pixel corner for the left corner of the triangle
 
-    def __init__(self, x_loc: int, y_loc: int, rad: int):
+    def __init__(self, x_loc: int, y_loc: int, rad: int, screen: pygame.Surface, left_corner: tuple[float, float]):
         self.o = Empty(x_loc, y_loc, rad)
         self.x = x_loc
         self.y = y_loc
+        self.r = rad
+        self.screen = screen
+        self.left_corner = left_corner
 
     # Get the object in this triangle
     def get_object(self) -> Object:
@@ -34,21 +41,36 @@ class Triangle:
         return typeof(self.o) == Empty
 
     # Render the triangle
-    def render(self, screen: pygame.Surface, left_corner: tuple[float, float]) -> None:
-        self.o.render(screen, left_corner)
+    def render(self) -> None:
+        self.o.render(self.screen, self.left_corner)
 
 
 class Grid:
+    MARGIN: int = 200       # pixel margin on the screen
     grid: any               # array of triangles representing the grid
     unit: float             # unit length in pixels equal to half of a triangle side
-    bl: tuple[float, float] # pixel coordinates for bottom left of corner of the grid
+    bl: tuple[float, float] # pixel coordinates for bottom left corner of the grid
+    screen: pygame.Surface  # pygame screen to render to
 
-    def __init__(self, width: int, height: int):
+    def __init__(self, width: int, height: int, screen: pygame.Surface):
+        self.screen = screen
+        (screen_w, screen_h) = screen.get_size()
+        (adj_w, adj_h) = (screen_w - MARGIN, screen_h - MARGIN)
+        (grid_x, grid_y) = self.shape()
+        x = 2*grid_x + grid_y
+        y = math.sqrt(3)*grid_y
+
+        self.unit = min(adj_w / x, adj_h / y)
+        grid_w = self.unit * x
+        grid_h = self.unit * y
+
+        self.bl = ((screen_w - grid_w) / 2, (screen_h + grid_h) / 2)
+
         self.grid = numpy.full((width, height, 2), None)
         for i in range(width):
             for j in range(height):
                 for r in range(2):
-                    self.grid[i, j, r] = Triangle(i, j, r)
+                    self.grid[i, j, r] = Triangle(i, j, r, screen, self.grid_to_screen_coord(x, y, r))
 
     # Verify that the coordinates are in the grid, and raise an exception if not
     def _verify_coord(x: int, y: int, r: int, raise_if_bad: bool=True) -> bool:
@@ -134,27 +156,13 @@ class Grid:
 
     # Render the grid
     def render_all(self, screen: pygame.Surface) -> None:
-        MARGIN = 200
-
-        (screen_w, screen_h) = screen.get_size()
-        (adj_w, adj_h) = (screen_w - MARGIN, screen_h - MARGIN)
-        (grid_x, grid_y) = self.shape()
-        x = 2*grid_x + grid_y
-        y = math.sqrt(3)*grid_y
-
-        self.unit = min(adj_w / x, adj_h / y)
-        grid_w = self.unit * x
-        grid_h = self.unit * y
-
-        self.bl = ((screen_w - grid_w) / 2, (screen_h + grid_h) / 2)
-
         # Draw horizontals
         for j in range(grid_y+1):
             x_offset = 2*grid_x*self.unit
             y_offset = j*self.unit
             pygame.draw.line(
                 screen,
-                (0,0,0),
+                BLACK,
                 (self.bl[0] + y_offset, self.bl[1] - math.sqrt(3)*y_offset),
                 (self.bl[0] + y_offset + x_offset, self.bl[1] - math.sqrt(3)*y_offset)
             )
@@ -165,21 +173,20 @@ class Grid:
             y_offset = grid_y*self.unit
             pygame.draw.line(
                 screen,
-                (0,0,0),
+                BLACK,
                 (self.bl[0] + x_offset, self.bl[1]),
                 (self.bl[0] + x_offset + y_offset, self.bl[1] - math.sqrt(3)*y_offset)
             )
 
-        # Draw first half of cross diagonals
+        # Draw cross diagonals
         for i in range(grid_x):
             offset = i*self.unit
             pygame.draw.line(
                 screen,
-                (0,0,0),
+                BLACK,
                 (self.bl[0] + 2*offset, self.bl[1]),
                 (self.bl[0] + offset, self.bl[1] - math.sqrt(3)*offset),
             )
-
         for i in range(grid_y):
             br = (self.bl[0] + 2*grid_x*self.unit, self.bl[1])
             tl = (self.bl[0] + grid_y*self.unit, self.bl[1] - math.sqrt(3)*grid_y*self.unit)
@@ -187,13 +194,14 @@ class Grid:
             offset = i*self.unit
             pygame.draw.line(
                 screen,
-                (0,0,0),
+                BLACK,
                 (br[0] + offset, br[1] - math.sqrt(3)*offset),
                 (tl[0] + 2*offset, tl[1]),
             )
 
+        # Render triangles
         shape = self.shape()
         for x in range(shape[0]):
             for y in range(shape[1]):
                 for r in range(2):
-                    self.grid[x, y, r].render(screen, self.grid_to_screen_coord(x, y, r))
+                    self.grid[x, y, r].render()

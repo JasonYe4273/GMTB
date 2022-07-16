@@ -1,6 +1,6 @@
 {
     "name":"Roll of the Dice",
-    "bounds":[[0,0,0],[2,2,1]],
+    "dim": [3,3],
     "objects":
     [
         {"type":"start", "loc":[0,2,1]},

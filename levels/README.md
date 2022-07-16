@@ -7,10 +7,9 @@ A level is represented as JSON object with three fields: a `name`, a `bounds` ar
 ---
 Self-explanatory. Should be a string.
 
-## Bounds
+## Dimension
 ---
-The `bounds` field is an array containing two arrays of three integers, indicating the upper left and lower left corner of the the shear array. Coordinates are specified as in this link:
-https://nornagon.medium.com/til-triangle-grids-133ed47cc807
+The `dim` field is a tuple specifying the x- and y-coordinate
 
 ## Objects
 ---

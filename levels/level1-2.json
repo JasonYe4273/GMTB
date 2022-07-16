@@ -1,6 +1,6 @@
 {
     "name":"Branched Solutions",
-    "bounds":[[0,0,0],[3,3,1]],
+    "dim": [4,4],
     "objects":
     [
         {"type":"start", "loc":[2,2,1]},
