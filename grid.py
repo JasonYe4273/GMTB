@@ -223,7 +223,7 @@ class Grid:
     # Get the object at the given coordinates
     def get_object(self, x: int, y: int, r: int) -> Object:
         self._verify_coord(x, y, r)
-        return self.grid[x, y, r].get_object(o)
+        return self.grid[x, y, r].get_object()
 
     # Set the object at the given coordinates
     def set_object(self, o: Object, x: int, y: int, r: int) -> None:
@@ -435,12 +435,40 @@ class Grid:
                     elif can_push_right:
                         arrow_grid[adj] = [d, 3]
 
+        # Reset dice values
+        for x in range(grid_x):
+            for y in range(grid_y):
+                for r in range(2):
+                    self.grid[x, y, r].o.reset_value()
+
+        # Calculate dice values
+        used = set()
+        for x in range(grid_x):
+            for y in range(grid_y):
+                for r in range(2):
+                    if (x, y, r) in used:
+                        continue
+
+                    v = self.grid[x, y, r].o.calc_value()
+                    if v is not None:
+                        self.proprogate_values((x, y, r), v, used)
+
         # Render triangles
-        shape = self.shape()
-        for x in range(shape[0]):
-            for y in range(shape[1]):
+        for x in range(grid_x):
+            for y in range(grid_y):
                 for r in range(2):
                     self.grid[x, y, r].render(*arrow_grid[x, y, r], (x, y, r) == (mouse_x, mouse_y, mouse_r))
+
+    def proprogate_values(self, coordinates: Tuple[int, int, int], value: int, used: set) -> None:
+        used.add(coordinates)
+        for adj_dir in self.grid_adj(*coordinates):
+            adj = self._add_dir(*coordinates, adj_dir)
+            if adj in used:
+                continue
+
+            v = self.grid[adj].o.calc_value(value)
+            if v is not None:
+                self.proprogate_values(adj, v, used)
 
 
     # Undo last move
