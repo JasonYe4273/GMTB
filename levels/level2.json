@@ -2,6 +2,7 @@
     "name":"Branched Solutions",
     "dim": [4,4],
     "level": 2,
+    "desc": "Not knowing what to do, Thunder descended to the ground to meet the flowers and asked them. \nHint: Let the equation bend from two sides.",
     "objects":
     [
         {"type":"start", "loc":[2,1,1]},

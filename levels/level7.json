@@ -2,6 +2,7 @@
     "name":"Thunder's Biggest Challenge",
     "dim":[4,5],
     "level": 7,
+    "desc": "Rain poured forth from Thunder as it leapt and clapped for joy!",
     "objects":
     [
     	{"type":"start", "loc":[0,1,1]},

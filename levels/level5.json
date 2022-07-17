@@ -2,6 +2,7 @@
     "name":"A New Front-ier",
     "dim":[3,1],
     "level": 5,
+    "desc": "Thunder met the wind, which told it to boom and bolt.",
     "objects":
     [
         {"type":"start", "loc":[0,0,0]},

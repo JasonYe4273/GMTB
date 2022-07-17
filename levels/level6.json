@@ -2,6 +2,7 @@
     "name":"Skies Above",
     "dim":[5,5],
     "level": 6,
+    "desc": "Thunder began to boom and bolt, and the rain began to pool.",
     "objects":
     [
         {"type":"start", "loc":[4,0,1]},

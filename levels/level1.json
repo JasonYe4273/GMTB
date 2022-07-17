@@ -2,6 +2,7 @@
     "name":"Roll of the Dice",
     "dim": [3,3],
     "level": 1,
+    "desc": "One day, a little cloud named Thunder found itself laden with lots of rain.",
     "objects":
     [
         {"type":"start", "loc":[0,0,1]},
