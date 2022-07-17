@@ -2,7 +2,7 @@ import pygame
 import math
 from typing import Tuple
 
-from images import PLAYER_IMG_0, PLAYER_IMG_1, WALL_IMG
+from images import *
 
 class Direction:
     X = 0
@@ -84,8 +84,7 @@ class Dice(Object):
             self.current_face = self.faces[self.current_face][2]
 
     def render(self, screen: pygame.Surface, left_corner: Tuple[float, float], unit: float) -> None:
-        pass#self.render_static_image(screen, left_corner, unit, WALL_IMG)
-    
+        self.render_static_image(screen, left_corner, unit, D4_IMG)
 
 
 class Player(Object):
