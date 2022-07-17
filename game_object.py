@@ -77,10 +77,6 @@ class Wall(Object):
     def __init__(self, x_loc: int, y_loc: int, rad: int):
         super().__init__(x_loc, y_loc, rad)
 
-    def render(self, screen: pygame.Surface, left_corner: Tuple[float, float], unit: float) -> None:
-        self.render_static_image(screen, left_corner, unit, WALL_IMG)
-
-
 class Dice(Object):
     current_face: str
     faces: dict
