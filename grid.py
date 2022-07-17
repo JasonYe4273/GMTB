@@ -5,10 +5,20 @@ from game_object import *
 from styles import *
 from typing import Tuple, Set, List, Optional
 
+from images import *
+
 class Direction:
     X = 0
     Y = 1
     R = 2
+
+    @staticmethod
+    def left(direction: int) -> int:
+        return (direction + 2) % 3
+
+    @staticmethod
+    def right(direction: int) -> int:
+        return (direction + 1) % 3
 
 DIRECTIONS = [Direction.X, Direction.Y, Direction.R]
 
@@ -63,20 +73,81 @@ class Triangle:
         return type(self.o) == Dice
 
     # Render the triangle
-    def render(self, color: Tuple[int, int, int]) -> None:
-        pm = 1 if self.r == 1 else -1
-        margin = self.unit*0.05
-
-        pygame.draw.polygon(
-            self.screen,
-            [*color, 0.3],
-            [
-                (self.left_corner[0] + math.sqrt(3)*margin, self.left_corner[1] + pm*margin),
-                (self.left_corner[0] + 2*self.unit - math.sqrt(3)*margin, self.left_corner[1] + pm*margin),
-                (self.left_corner[0] + self.unit, self.left_corner[1] + pm*math.sqrt(3)*self.unit - 2*pm*margin)
-            ],
-        )
+    def render(self, arrow_direction: int, arrow_type: int, mouseover: bool) -> None:
         self.o.render(self.screen, self.left_corner, self.unit)
+
+        # Determine arrow type
+        img = None
+        if arrow_type == 0:
+            if mouseover:
+                img = MOVE_ARROW_HOVER
+            else:
+                img = MOVE_ARROW
+        elif arrow_type == 1:
+            if mouseover:
+                img = PUSH_ARROW_BOTH_HOVER
+            else:
+                img = PUSH_ARROW_BOTH
+        elif arrow_type == 2:
+            if mouseover:
+                img = pygame.transform.flip(PUSH_ARROW_RIGHT_HOVER, True, False)
+            else:
+                img = pygame.transform.flip(PUSH_ARROW_RIGHT, True, False)
+        elif arrow_type == 3:
+            if mouseover:
+                img = PUSH_ARROW_RIGHT_HOVER
+            else:
+                img = PUSH_ARROW_RIGHT
+
+        if img:
+            # Scale and rotate arrow image
+            img = pygame.transform.scale(img, (self.unit, self.unit/2))
+            rotation = 0
+            if arrow_direction == Direction.Y:
+                if self.r == 0:
+                    rotation = 180
+            elif arrow_direction == Direction.X:
+                if self.r == 0:
+                    rotation = 60
+                else:
+                    rotation = 240
+            elif arrow_direction == Direction.R:
+                if self.r == 0:
+                    rotation = 300
+                else:
+                    rotation = 120
+
+            if rotation > 0:
+                img = pygame.transform.rotate(img, rotation)
+
+            # Move the arrow to the right position
+            x_offset = 0
+            y_offset = 0
+
+            # Don't question the math here it's hell
+            if arrow_direction == Direction.Y:
+                if self.r == 0:
+                    x_offset = self.unit / 2
+                    y_offset = -self.unit / 2
+                else:
+                    x_offset = self.unit / 2
+            elif arrow_direction == Direction.X:
+                if self.r == 0:
+                    x_offset = self.unit / 4
+                    y_offset = -self.unit * 3 * math.sqrt(3) / 4
+                else:
+                    x_offset = self.unit * (5 - math.sqrt(3)) / 4
+                    y_offset = self.unit * (math.sqrt(3) - 1) / 4
+            elif arrow_direction == Direction.R:
+                if self.r == 0:
+                    x_offset = self.unit * (5 - math.sqrt(3)) / 4
+                    y_offset = -self.unit * 3 * math.sqrt(3) / 4
+                else:
+                    x_offset = self.unit / 4
+                    y_offset = self.unit * (math.sqrt(3) - 1) / 4
+
+            self.screen.blit(img, (self.left_corner[0] + x_offset, self.left_corner[1] + y_offset))
+
 
 
 class Grid:
@@ -315,8 +386,8 @@ class Grid:
 
         (mouse_x, mouse_y, mouse_r) = self.screen_to_grid_coord(mouse_pos)
 
-        # Color grid based on player movement options
-        color_grid = numpy.full([grid_x, grid_y, 2, 3], WHITE)
+        # Arrow grid based on player movement options: arrows are represented by (direction, type)
+        arrow_grid = numpy.full([grid_x, grid_y, 2, 2], [-1, -1])
         if self.player:
             for d in self.grid_adj(*self.player.get_location()):
                 # Find all adjacent triangles
@@ -324,7 +395,7 @@ class Grid:
 
                 # Can move to empty triangles
                 if self.grid[adj].is_empty():
-                    color_grid[adj] = GREEN
+                    arrow_grid[adj] = [d, 0]
 
                 # Can maybe move to pushable triangles
                 elif self.grid[adj].is_pushable():
@@ -340,37 +411,36 @@ class Grid:
                                 moused_over = True
 
                     # Check adjacent triangles to the triangle you're pushing
-                    can_push = False
-                    for adj_d in self.grid_adj(*adj):
-                        adj_adj = self._add_dir(*adj, adj_d)
-                        if adj_adj == self.player.get_location():
-                            continue
+                    can_push_left = False
+                    left_dir = Direction.left(d)
+                    adj_left = self._add_dir(*adj, left_dir)
+                    if self._verify_coord(*adj_left, False) and self.grid[adj_left].is_empty():
+                        can_push_left = True
+                        if moused_over:
+                            arrow_grid[adj_left] = [left_dir, 0]
 
-                        # Can only push to empty triangles
-                        if self.grid[adj_adj].is_empty():
-                            can_push = True
-                            # Only color if moused over
-                            if moused_over:
-                                color_grid[adj_adj] = GREEN
+                    can_push_right = False
+                    right_dir = Direction.right(d)
+                    adj_right = self._add_dir(*adj, right_dir)
+                    if self._verify_coord(*adj_right, False) and self.grid[adj_right].is_empty():
+                        can_push_right = True
+                        if moused_over:
+                            arrow_grid[adj_right] = [right_dir, 0]
 
                     # Blue if you can push.
-                    if can_push:
-                        color_grid[adj] = BLUE
+                    if can_push_left and can_push_right:
+                        arrow_grid[adj] = [d, 1]
+                    elif can_push_left:
+                        arrow_grid[adj] = [d, 2]
+                    elif can_push_right:
+                        arrow_grid[adj] = [d, 3]
 
         # Render triangles
         shape = self.shape()
         for x in range(shape[0]):
             for y in range(shape[1]):
                 for r in range(2):
-                    # If mouseover, then turn the color lighter
-                    color = tuple(color_grid[x, y, r])
-                    if (x, y, r) == (mouse_x, mouse_y, mouse_r):
-                        if color == GREEN:
-                            color = LIGHT_GREEN
-                        elif color == BLUE:
-                            color = LIGHT_BLUE
-
-                    self.grid[x, y, r].render(color)
+                    self.grid[x, y, r].render(*arrow_grid[x, y, r], (x, y, r) == (mouse_x, mouse_y, mouse_r))
 
 
     # Undo last move
