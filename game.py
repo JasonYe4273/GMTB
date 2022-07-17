@@ -1,6 +1,7 @@
 import math
 import os
 import json
+from typing import List
 from functools import partial
 from pygame_button import Button
 
@@ -15,7 +16,7 @@ pygame.init()
 class Game:
     screen: pygame.Surface
     levels: dict
-    buttons: list[Button]
+    buttons: List[Button]
 
     running: bool
     paused: bool

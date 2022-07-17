@@ -3,7 +3,7 @@ import math
 import pygame
 from game_object import *
 from styles import *
-from typing import Tuple
+from typing import Tuple, Set
 
 class Direction:
     X = 0
@@ -147,7 +147,7 @@ class Grid:
     # Get the directions adjacent to the given coordinates
     def grid_adj(self, x: int, y: int, r: int) -> set[Direction]:
         self._verify_coord(x, y, r)
-        adj: set[Direction] = set()
+        adj: Set[Direction] = set()
 
         for d in DIRECTIONS:
             (x2, y2, r2) = self._add_dir(x, y, r, d)
