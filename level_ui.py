@@ -9,6 +9,7 @@ class LevelUI(object):
     def __init__(self, screen: pygame.Surface):
         super(LevelUI, self).__init__()
         self.screen = screen
+        self.grid = None
 
     def load_level_spec(self, level_spec: dict) -> None:
         self.grid = Grid(level_spec["dim"][0], level_spec["dim"][1], self.screen)
