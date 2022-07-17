@@ -23,4 +23,4 @@ LEVEL_BG = [pygame.image.load('images/level1_bg.png'),
             pygame.image.load('images/level2_bg.png'),
             pygame.image.load('images/level1_bg.png'),
             pygame.image.load('images/level2_bg.png'),
-            pygame.image.load('images/level7_bg.png')]
+            pygame.image.load('images/level1_bg.png')]
