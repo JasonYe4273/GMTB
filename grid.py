@@ -259,7 +259,7 @@ class Grid:
         return adj
 
     # Move an object at the given coordinates in the given direction
-    def move_object(self, x: int, y: int, r: int, d: int, player_d: Optional[int]=None) -> None:
+    def move_object(self, x: int, y: int, r: int, d: int, player_d: Optional[int]=None, undo: bool=False) -> None:
         self._verify_coord(x,y,r)
         o = self.grid[x, y, r].get_object()
 
@@ -272,8 +272,12 @@ class Grid:
         e = self.grid[x2, y2, r2].get_object()
 
         # Move objects
-        self.grid[x2, y2, r2].move_object(d)
-        self.grid[x, y, r].move_object(d, player_d)
+        if undo:
+            self.grid[x2, y2, r2].move_object(d)
+            self.grid[x, y, r].o.move(d, self.grid[x2, y2, r2].front, player_d)
+        else:
+            self.grid[x2, y2, r2].move_object(d)
+            self.grid[x, y, r].move_object(d, player_d)
 
         # Set new objects to their locations
         self.grid[x, y, r].set_object(e)
@@ -469,9 +473,9 @@ class Grid:
     def undo(self):
         if len(self.undo_stack) > 0:
             m = self.undo_stack.pop()
-            self.move_object(*m.player_end, m.player_dir)
+            self.move_object(*m.player_end, m.player_dir, undo=True)
             if m.dice_end:
-                self.move_object(*m.dice_end, m.dice_dir, 3 - m.dice_dir - m.player_dir)
+                self.move_object(*m.dice_end, m.dice_dir, 3 - m.dice_dir - m.player_dir, undo=True)
 
     # Reset puzzle
     def reset(self):
