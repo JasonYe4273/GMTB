@@ -84,8 +84,18 @@ class Dice(Object):
             self.current_face = self.faces[self.current_face][2]
 
     def render(self, screen: pygame.Surface, left_corner: Tuple[float, float], unit: float) -> None:
-        self.render_static_image(screen, left_corner, unit, D4_IMG)
+        pygame.font.init()
+        my_font = pygame.font.SysFont('Comic Sans MS', int(unit/4))
+        text_surface_1 = my_font.render("s1", False, (0, 0, 0))
+        text_surface_x = my_font.render("sx", False, (0, 0, 0))
+        text_surface_y = my_font.render("sy", False, (0, 0, 0))
+        text_surface_r = my_font.render("sr", False, (0, 0, 0))
+        D4_IMG.blit(text_surface_1, (D4_IMG.get_width()/2, D4_IMG.get_height()/2))
+        D4_IMG.blit(text_surface_x, (D4_IMG.get_width()/4, D4_IMG.get_height()/2))
+        D4_IMG.blit(text_surface_y, (D4_IMG.get_width()/2, D4_IMG.get_height()*13/16))
+        D4_IMG.blit(text_surface_r, (D4_IMG.get_width()/32*21, D4_IMG.get_height()/2))
 
+        self.render_static_image(screen, left_corner, unit, D4_IMG)
 
 class Player(Object):
     def __init__(self, x_loc: int, y_loc: int, rad: int):
