@@ -2,7 +2,7 @@ import numpy
 import math
 import pygame
 from game_object import *
-from styles import BLACK, WHITE, GREEN, DARK_GREEN
+from styles import *
 
 class Direction:
     X = 0
@@ -44,6 +44,10 @@ class Triangle:
     def is_empty(self) -> bool:
         return type(self.o) == Empty
 
+    # Check if the object in the triangle is pushable
+    def is_pushable(self) -> bool:
+        return type(self.o) == Dice
+
     # Render the triangle
     def render(self, color: tuple[int, int, int]) -> None:
         pm = 1 if self.r == 1 else -1
@@ -59,10 +63,6 @@ class Triangle:
             ],
         )
         self.o.render(self.screen, self.left_corner, self.unit)
-
-    # Click the triangle
-    def click(self) -> None:
-        pass
 
 
 class Grid:
@@ -101,15 +101,15 @@ class Grid:
     def _verify_coord(self, x: int, y: int, r: int, raise_if_bad: bool=True) -> bool:
         if x < 0 or x >= self.grid.shape[0]:
             if raise_if_bad:
-                raise Exception("x coordinate out of bounds")
+                raise Exception(f"x coordinate {x} out of bounds")
             return False
         if y < 0 or y >= self.grid.shape[1]:
             if raise_if_bad:
-                raise Exception("y coordinate out of bounds")
+                raise Exception(f"y coordinate {y} out of bounds")
             return False
         if r < 0 or r > 1:
             if raise_if_bad:
-                raise Exception("r coordinate out of bounds")
+                raise Exception(f"r coordinate {r} out of bounds")
             return False
         return True
 
@@ -217,10 +217,37 @@ class Grid:
 
     # Handle mouse click
     def handle_click(self, mouse_pos: tuple[float, float]) -> None:
-        (mouse_x, mouse_y, mouse_r) = self.screen_to_grid_coord(mouse_pos)
+        # Check that the mouse is in the grid
+        clicked = self.screen_to_grid_coord(mouse_pos)
+        if not self._verify_coord(*clicked, False):
+            return
 
-        if self._verify_coord(mouse_x, mouse_y, mouse_r, False):
-            self.grid[mouse_x, mouse_y, mouse_r].click()
+        # Check if click location is a valid move location
+        if self.player:
+            for d in self.grid_adj(self.player.x, self.player.y, self.player.r):
+                # Find all adjacent triangles
+                adj = self._add_dir(self.player.x, self.player.y, self.player.r, d)
+
+                # Can move to empty triangles
+                if clicked == adj and self.grid[adj].is_empty():
+                    self.move_object(self.player.x, self.player.y, self.player.r, d)
+                    return
+
+                # Can maybe move to pushable triangles
+                elif self.grid[adj].is_pushable():
+                    # Check adjacent triangles to the triangle you're pushing
+                    for adj_d in self.grid_adj(*adj):
+                        adj_adj = self._add_dir(*adj, adj_d)
+                        if adj_adj == (self.player.x, self.player.y, self.player.r):
+                            continue
+
+                        # Can only push to empty triangles
+                        if clicked == adj_adj and self.grid[adj_adj].is_empty():
+                            # First move pushable object
+                            self.move_object(*adj, adj_d)
+                            # Then move player
+                            self.move_object(self.player.x, self.player.y, self.player.r, d)
+                            return
 
     # Render the grid
     def render_all(self, mouse_pos: tuple[float, float]) -> None:
@@ -275,21 +302,62 @@ class Grid:
 
         (mouse_x, mouse_y, mouse_r) = self.screen_to_grid_coord(mouse_pos)
 
+        # Color grid based on player movement options
         color_grid = numpy.full([grid_x, grid_y, 2, 3], WHITE)
         if self.player:
             for d in self.grid_adj(self.player.x, self.player.y, self.player.r):
+                # Find all adjacent triangles
                 adj = self._add_dir(self.player.x, self.player.y, self.player.r, d)
-                if adj == (mouse_x, mouse_y, mouse_r):
+
+                # Can move to empty triangles
+                if self.grid[adj].is_empty():
                     color_grid[adj] = GREEN
-                else:
-                    color_grid[adj] = DARK_GREEN
+
+                # Can maybe move to pushable triangles
+                elif self.grid[adj].is_pushable():
+                    # Check whether you're mousing over the pushabale triangle or any of its adjacent triangles
+                    moused_over = adj == (mouse_x, mouse_y, mouse_r)
+                    if not moused_over:
+                        for adj_d in self.grid_adj(*adj):
+                            adj_adj = self._add_dir(*adj, adj_d)
+                            if adj_adj == (self.player.x, self.player.y, self.player.r):
+                                continue
+                                
+                            if adj_adj == (mouse_x, mouse_y, mouse_r):
+                                moused_over = True
+
+                    # Check adjacent triangles to the triangle you're pushing
+                    can_push = False
+                    for adj_d in self.grid_adj(*adj):
+                        adj_adj = self._add_dir(*adj, adj_d)
+                        if adj_adj == (self.player.x, self.player.y, self.player.r):
+                            continue
+
+                        # Can only push to empty triangles
+                        if self.grid[adj_adj].is_empty():
+                            can_push = True
+                            # Only color if moused over
+                            if moused_over:
+                                color_grid[adj_adj] = GREEN
+
+                    # Blue if you can push and it's moused-over, otherwise green.
+                    if can_push:
+                        if moused_over:
+                            color_grid[adj] = BLUE
+                        else:
+                            color_grid[adj] = GREEN
 
         # Render triangles
         shape = self.shape()
         for x in range(shape[0]):
             for y in range(shape[1]):
                 for r in range(2):
-                    color = WHITE
+                    # If mouseover, then turn the color lighter
+                    color = tuple(color_grid[x, y, r])
                     if (x, y, r) == (mouse_x, mouse_y, mouse_r):
-                        color = GREEN
-                    self.grid[x, y, r].render(color_grid[x, y, r])
+                        if color == GREEN:
+                            color = LIGHT_GREEN
+                        elif color == BLUE:
+                            color = LIGHT_BLUE
+
+                    self.grid[x, y, r].render(color)
