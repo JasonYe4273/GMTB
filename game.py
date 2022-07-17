@@ -77,6 +77,42 @@ class Game:
                 text=level_name,
                 **BUTTON_STYLE
             ))
+        self.buttons.append(Button(
+                (500, 200+50*(len(self.levels)+1), 600, 50),
+                GREY,
+                self.render_instructions,
+                text="Instructions",
+                **BUTTON_STYLE
+            ))
+
+    def render_instructions(self) -> None:
+        self.clear_screen()
+        self.state = "instructions"
+        pygame.font.init()
+        title_font = pygame.font.SysFont('Comic Sans MS', 40)
+        instruction_font = pygame.font.SysFont('Comic Sans MS', 24)
+        text_surface = title_font.render("Instructions", False, (0, 0, 0))
+        instruction_set = ["Make a valid math problem with all of the dice.", 
+        "Press 'U' to undo your last move.",  
+        "Press 'R' to restart the level.", 
+        "Yellow dice start the equation, Green dice have operators, and blue dice are the end of the equation.", 
+        "The triangle and semi-circle symbols indicate a \"front\".",
+        "When a dice is in a space that contains a front, instead of rolling off of that space, the die slides.",
+        "This means that it will hinge around the corner furthest from the player's initial position."
+        ]
+        self.screen.blit(text_surface, (100, 100))
+        for si in range(len(instruction_set)):
+            s = instruction_set[si]
+            text_surface = instruction_font.render(s, False, (0, 0, 0))
+            self.screen.blit(text_surface, (100, 150+(40*si)))
+             
+    def render_winning(self) -> None:
+        self.clear_screen()
+        self.state = "winning"
+        pygame.font.init()
+        win_font = pygame.font.SysFont('Comic Sans MS', 100)
+        text_surface = win_font.render("You Won!", False, (0, 0, 0))
+        self.screen.blit(text_surface, (200, 200))
 
     # Quit
     def quit(self) -> None:
@@ -123,6 +159,9 @@ class Game:
         self.running = True
         while self.running:
             # Did the user click the window close button?
+            if self.level_ui.grid:
+                if self.level_ui.grid.won:
+                    self.render_winning()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
