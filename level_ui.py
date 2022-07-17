@@ -12,7 +12,6 @@ class LevelUI(object):
         self.grid = None
 
     def load_level_spec(self, level_spec: dict) -> None:
-        print(level_spec["dim"][0])
         self.grid = Grid(level_spec["dim"][0], level_spec["dim"][1], self.screen)
         self.grid.add_objects(level_spec["objects"])
 
