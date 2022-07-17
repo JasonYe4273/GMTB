@@ -9,7 +9,10 @@ PUSH_ARROW_RIGHT = pygame.image.load('images/push_arrow_right.png')
 PUSH_ARROW_RIGHT_HOVER = pygame.image.load('images/push_arrow_right_hover.png')
 PUSH_ARROW_BOTH = pygame.image.load('images/push_arrow_both.png')
 PUSH_ARROW_BOTH_HOVER = pygame.image.load('images/push_arrow_both_hover.png')
-D4_IMG = pygame.image.load('images/d4.png')
+D4_RED_IMG = pygame.image.load('images/d4.png')
+D4_BLUE_IMG = pygame.image.load('images/d4blue.png') 
+D4_GREEN_IMG = pygame.image.load('images/d4green.png') 
+D4_YELLOW_IMG = pygame.image.load('images/d4yellow.png') 
 LEVEL = [pygame.image.load('images/level1.png'),
 		 pygame.image.load('images/level2.png'),
 		 pygame.image.load('images/level3.png'),

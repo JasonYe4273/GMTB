@@ -151,27 +151,38 @@ class Dice(Object):
     def render(self, screen: pygame.Surface, left_corner: Tuple[float, float], unit: float) -> None:
         pygame.font.init()
 
-        main_font = pygame.font.SysFont('Comic Sans MS', int(unit/3))
-        xyr_font = pygame.font.SysFont('Comic Sans MS', int(unit/4))
+        main_font = pygame.font.SysFont('Comic Sans MS', int(unit*(3/4)))
+        xyr_font = pygame.font.SysFont('Comic Sans MS', int(unit/2))
 
         # Render text for die faces
+
         text_surface_1 = main_font.render(self.current_face, False, PURPLE)
         text_surface_x = xyr_font.render(self.faces[self.current_face][Direction.X], False, LIGHT_BLUE)
         text_surface_y = xyr_font.render(self.faces[self.current_face][Direction.Y], False, LIGHT_BLUE)
         text_surface_r = xyr_font.render(self.faces[self.current_face][Direction.R], False, LIGHT_BLUE)
-
+        
+        if self.r == 1:
+            text_surface_1 = pygame.transform.flip(text_surface_1, True, True)
+            text_surface_y = pygame.transform.flip(text_surface_y, True, True)
+            text_surface_r = pygame.transform.flip(text_surface_r, True, True)
+            text_surface_x = pygame.transform.flip(text_surface_x, True, True)
         # Render text for calculated values
         text_surface_v = None
+        if "=" in self.current_face:
+            img = D4_BLUE_IMG.copy()
+        elif "+" in self.current_face or "-" in self.current_face or "x" in self.current_face or "/" in self.current_face:
+            img = D4_GREEN_IMG.copy()
+        else:
+            img = D4_RED_IMG.copy()
+        
         if self.valid == False:
-            text_surface_v = xyr_font.render('E', False, RED)
+            pass
         elif self.value is not None:
-            text_surface_v = xyr_font.render(str(self.value), False, GREEN)
-
-        img = D4_IMG.copy()
-        img.blit(text_surface_1, (img.get_width()/2, img.get_height()/2))
-        img.blit(text_surface_x, (img.get_width()*3/4, img.get_height()*3/4))
+            img = D4_YELLOW_IMG.copy()
+        img.blit(text_surface_1, (img.get_width()*(1/2), img.get_height()*(5/12)))
+        img.blit(text_surface_x, (img.get_width()*3/4, img.get_height()*(5/8)))
         img.blit(text_surface_y, (img.get_width()*19/48, img.get_height()/5))
-        img.blit(text_surface_r, (img.get_width()/8, img.get_height()*29/32))
+        img.blit(text_surface_r, (img.get_width()*(3/16), img.get_height()*(13/16)))
         if text_surface_v:
             img.blit(text_surface_v, (img.get_width()*19/48, img.get_height()/2))
 
