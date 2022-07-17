@@ -64,10 +64,6 @@ class Triangle:
         )
         self.o.render(self.screen, self.left_corner, self.unit)
 
-    # Click the triangle
-    def click(self) -> None:
-        pass
-
 
 class Grid:
     MARGIN: int = 200                   # pixel margin on the screen
@@ -105,15 +101,15 @@ class Grid:
     def _verify_coord(self, x: int, y: int, r: int, raise_if_bad: bool=True) -> bool:
         if x < 0 or x >= self.grid.shape[0]:
             if raise_if_bad:
-                raise Exception("x coordinate out of bounds")
+                raise Exception(f"x coordinate {x} out of bounds")
             return False
         if y < 0 or y >= self.grid.shape[1]:
             if raise_if_bad:
-                raise Exception("y coordinate out of bounds")
+                raise Exception(f"y coordinate {y} out of bounds")
             return False
         if r < 0 or r > 1:
             if raise_if_bad:
-                raise Exception("r coordinate out of bounds")
+                raise Exception(f"r coordinate {r} out of bounds")
             return False
         return True
 
@@ -221,10 +217,37 @@ class Grid:
 
     # Handle mouse click
     def handle_click(self, mouse_pos: tuple[float, float]) -> None:
-        (mouse_x, mouse_y, mouse_r) = self.screen_to_grid_coord(mouse_pos)
+        # Check that the mouse is in the grid
+        clicked = self.screen_to_grid_coord(mouse_pos)
+        if not self._verify_coord(*clicked, False):
+            return
 
-        if self._verify_coord(mouse_x, mouse_y, mouse_r, False):
-            self.grid[mouse_x, mouse_y, mouse_r].click()
+        # Check if click location is a valid move location
+        if self.player:
+            for d in self.grid_adj(self.player.x, self.player.y, self.player.r):
+                # Find all adjacent triangles
+                adj = self._add_dir(self.player.x, self.player.y, self.player.r, d)
+
+                # Can move to empty triangles
+                if clicked == adj and self.grid[adj].is_empty():
+                    self.move_object(self.player.x, self.player.y, self.player.r, d)
+                    return
+
+                # Can maybe move to pushable triangles
+                elif self.grid[adj].is_pushable():
+                    # Check adjacent triangles to the triangle you're pushing
+                    for adj_d in self.grid_adj(*adj):
+                        adj_adj = self._add_dir(*adj, adj_d)
+                        if adj_adj == (self.player.x, self.player.y, self.player.r):
+                            continue
+
+                        # Can only push to empty triangles
+                        if clicked == adj_adj and self.grid[adj_adj].is_empty():
+                            # First move pushable object
+                            self.move_object(*adj, adj_d)
+                            # Then move player
+                            self.move_object(self.player.x, self.player.y, self.player.r, d)
+                            return
 
     # Render the grid
     def render_all(self, mouse_pos: tuple[float, float]) -> None:

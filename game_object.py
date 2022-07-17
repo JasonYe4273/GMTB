@@ -25,17 +25,17 @@ class Object:
         self.r = rad
     
     def move(self, d: Direction) -> None:
-        self.r = (self.r+1)%2
-        if d==Direction.X:
-            if self.r==0:
-                self.x +=1
+        self.r = (self.r + 1) % 2
+        if d == Direction.X:
+            if self.r == 0:
+                self.x += 1
             else:
                 self.x -= 1
-        if d==Direction.Y:
-            if self.r==0:
-                self.y -= 1
+        if d == Direction.Y:
+            if self.r == 0:
+                self.y += 1
             else:
-                self.y +=1
+                self.y -= 1
 
     def render(self, screen: pygame.Surface, left_corner: tuple[float, float], unit: float) -> None:
         pass
