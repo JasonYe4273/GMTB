@@ -60,11 +60,9 @@ class Game:
     def render_level(self, level_name: str) -> None:
         self.clear_screen()
         self.state = level_name
-
+        self.paused = False
         level_spec = self.levels[level_name]
-
         self.level_ui.load_level_spec(level_spec)
-
     # Render the menu
     def render_menu(self) -> None:
         self.clear_screen()
