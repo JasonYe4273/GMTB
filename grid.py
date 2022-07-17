@@ -47,14 +47,19 @@ class Triangle:
     left_corner: Tuple[float, float]    # pixel corner for the left corner of the triangle
     unit: float                         # pixel length of half of a triangle side
 
+    front: bool                         # whether the triangle has a front
+
     def __init__(self, x_loc: int, y_loc: int, rad: int, screen: pygame.Surface, left_corner: Tuple[float, float], unit: float):
         self.o = Empty(x_loc, y_loc, rad)
         self.x = x_loc
         self.y = y_loc
         self.r = rad
+
         self.screen = screen
         self.left_corner = left_corner
         self.unit = unit
+
+        self.front = False
 
     # Get the object in this triangle
     def get_object(self) -> Object:
@@ -64,6 +69,10 @@ class Triangle:
     def set_object(self, obj: Object) -> None:
         self.o = obj
 
+    # Set whether the triangle is a front
+    def set_front(self, is_front: bool) -> None:
+        self.front = is_front
+
     # Check if the triangle is empty
     def is_empty(self) -> bool:
         return type(self.o) == Empty
@@ -71,6 +80,10 @@ class Triangle:
     # Check if the object in the triangle is pushable
     def is_pushable(self) -> bool:
         return type(self.o) == Dice
+
+    # Move object in the given direction
+    def move_object(self, direction: int, player_direction: Optional[int]=None) -> None:
+        self.o.move(direction, self.front, player_direction)
 
     # Render the triangle
     def render(self, arrow_direction: int, arrow_type: int, mouseover: bool) -> None:
@@ -238,21 +251,24 @@ class Grid:
         return adj
 
     # Move an object at the given coordinates in the given direction
-    def move_object(self, x: int, y: int, r: int, d: int) -> None:
+    def move_object(self, x: int, y: int, r: int, d: int, player_d: Optional[int]=None) -> None:
         self._verify_coord(x,y,r)
         o = self.grid[x, y, r].get_object()
 
         (x2, y2, r2) = self._add_dir(x, y, r, d)
         self._verify_coord(x2, y2, r2)
 
+        # Can only move into empty spaces
         if not self.grid[x2, y2, r2].is_empty():
             raise Exception(f"Cannot move from ({x}, {y}, {r}) into nonempty space at ({x2}, {y2}, {r2})")
         e = self.grid[x2, y2, r2].get_object()
 
-        e.move(d)
-        self.grid[x, y, r].set_object(e)
+        # Move objects
+        self.grid[x2, y2, r2].move_object(d)
+        self.grid[x, y, r].move_object(d, player_d)
 
-        o.move(d)
+        # Set new objects to their locations
+        self.grid[x, y, r].set_object(e)
         self.grid[x2, y2, r2].set_object(o)
 
     # Add objects from level JSON
@@ -268,6 +284,13 @@ class Grid:
             elif o["type"] == "wall":
                 wall = Wall(x, y, r)
                 self.set_object(wall, x, y, r)
+
+    # Set weather from level JSON
+    def set_weather(self, terrain: any) -> None:
+        for w in weather:
+            (x, y, r) = w["loc"]
+            if w["type"] == "front":
+                self.grid[x, y, r].set_front(True)
 
 
     # Convert grid coordinates to pixel coordinates
@@ -322,7 +345,7 @@ class Grid:
                         # Can only push to empty triangles
                         if clicked == adj_adj and self.grid[adj_adj].is_empty():
                             # First move pushable object
-                            self.move_object(*adj, adj_d)
+                            self.move_object(*adj, adj_d, d)
                             # Then move player
                             self.move_object(*player_location, d)
 
@@ -440,7 +463,7 @@ class Grid:
             m = self.undo_stack.pop()
             self.move_object(*m.player_end, m.player_dir)
             if m.dice_end:
-                self.move_object(*m.dice_end, m.dice_dir)
+                self.move_object(*m.dice_end, m.dice_dir, 3 - m.dice_dir - m.player_dir)
 
     # Reset puzzle
     def reset(self):

@@ -30,7 +30,7 @@ class Object:
         self.y = y_loc
         self.r = rad
     
-    def move(self, d: Direction) -> None:
+    def move(self, d: int, front: bool, player_d: Optional[int]=None) -> None:
         self.r = (self.r + 1) % 2
         if d == Direction.X:
             if self.r == 0:
@@ -86,26 +86,53 @@ class Dice(Object):
     def __init__(self, x_loc: int, y_loc: int, rad: int, faces: List[str]):
         super().__init__(x_loc, y_loc, rad)
         
-        # Parse faces list
-        # List of faces will be provided in the order [T, Y, R, X]
-        self.current_face = faces[0]
-        self.faces = dict()
-        # When T is up, the order is [T, X, Y, R]
-        self.faces[faces[0]] = [faces[3], faces[1], faces[2]]
-        # When X is up, the order is [X, T, R, Y]
-        self.faces[faces[3]] = [faces[0], faces[2], faces[1]]
-        # When Y is up, the order is [Y, R, T, X]
-        self.faces[faces[1]] = [faces[2], faces[0], faces[3]]
-        # When R is up, the order is [R, Y, X, T]
-        self.faces[faces[2]] = [faces[1], faces[3], faces[0]]
+        # List of faces currently provided in the order [T, Y, R, X]; need to reorder
+        self.parse_face_list([faces[0], faces[3], faces[1], faces[2]])
 
         self.value = None
         self.valid = None
 
+    # Parse face list; should be provided in the order [T, X, Y, R]
+    def parse_face_list(self, faces: List[str]) -> None:
+        self.current_face = faces[0]
+        self.faces = dict()
+        # When T is up, the order is [T, X, Y, R]
+        self.faces[faces[0]] = [faces[1], faces[2], faces[3]]
+        # When X is up, the order is [X, T, R, Y]
+        self.faces[faces[1]] = [faces[0], faces[3], faces[2]]
+        # When Y is up, the order is [Y, R, T, X]
+        self.faces[faces[2]] = [faces[3], faces[0], faces[1]]
+        # When R is up, the order is [R, Y, X, T]
+        self.faces[faces[3]] = [faces[2], faces[1], faces[0]]
 
-    def move(self, d: Direction) -> None:
-        super().move(d)
-        self.current_face = self.faces[self.current_face][d]
+    def move(self, d: int, front: bool, player_d: Optional[int]=None) -> None:
+        super().move(d, front, player_d)
+        if front and player_d is not None:
+            t = self.current_face
+            (x, y, r) = tuple(self.faces[self.current_face])
+            if player_d == Direction.R:
+                if d == Direction.X:
+                    # [T, X, Y, R] -> [T, X, R, Y]
+                    self.parse_face_list([t, y, r, x])
+                elif d == Direction.Y:
+                    # [T, X, Y, R] -> [T, Y, R, X]
+                    self.parse_face_list([t, r, x, y])
+            elif player_d == Direction.X:
+                if d == Direction.Y:
+                    # [T, X, Y, R] -> [T, R, X, Y]
+                    self.parse_face_list([t, y, r, x])
+                elif d == Direction.R:
+                    # [T, X, Y, R] -> [T, Y, R, X]
+                    self.parse_face_list([t, r, x, y])
+            elif player_d == Direction.Y:
+                if d == Direction.R:
+                    # [T, X, Y, R] -> [T, Y, R, X]
+                    self.parse_face_list([t, y, r, x])
+                elif d == Direction.X:
+                    # [T, X, Y, R] -> [T, R, X, Y]
+                    self.parse_face_list([t, r, x, y])
+        else:
+            self.current_face = self.faces[self.current_face][d]
 
     def reset_value(self) -> None:
         self.value = None
