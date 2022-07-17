@@ -28,6 +28,7 @@ class Game:
 
         # Set up the drawing window
         self.screen = pygame.display.set_mode([1600, 900])
+        self.screen.set_caption('Thunder Bolt')
         self.level_ui = LevelUI(self.screen)
 
         # Load all the levels
