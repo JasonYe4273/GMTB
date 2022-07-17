@@ -3,7 +3,7 @@ import math
 import pygame
 from game_object import *
 from styles import *
-from typing import Tuple, Set
+from typing import Tuple, Set, List, Optional
 
 class Direction:
     X = 0
@@ -11,6 +11,19 @@ class Direction:
     R = 2
 
 DIRECTIONS = [Direction.X, Direction.Y, Direction.R]
+
+
+class Move:
+    player_end: Tuple[int, int, int]
+    player_dir: int
+    dice_end: Optional[Tuple[int, int, int]]
+    dice_dir: Optional[int]
+
+    def __init__(self, p_end: Tuple[int, int, int], p_dir: int, d_end: Optional[Tuple[int, int, int]]=None, d_dir: Optional[int]=None):
+        self.player_end = p_end
+        self.player_dir = p_dir
+        self.dice_end = d_end
+        self.dice_dir = d_dir
 
 
 class Triangle:
@@ -76,11 +89,13 @@ class Grid:
     screen: pygame.Surface              # pygame screen to render to
 
     player: Player                      # Player object
+    undo_stack: List[Move]              # Stack of moves for undo purposes
 
     def __init__(self, width: int, height: int, screen: pygame.Surface):
         self.screen = screen
         self.grid = numpy.full((width, height, 2), None)
         self.player = None
+        self.undo_stack = []
 
         (screen_w, screen_h) = screen.get_size()
         (adj_w, adj_h) = (screen_w - self.MARGIN, screen_h - self.MARGIN)
@@ -188,13 +203,6 @@ class Grid:
                 self.set_object(wall, x, y, r)
 
 
-    # Move player
-    def move_player(self, d: int) -> None:
-        if not self.player:
-            return
-        self.move_object(self.player.x, self.player.y, self.player.r, d)
-
-
     # Convert grid coordinates to pixel coordinates
     def grid_to_screen_coord(self, x: int, y: int, r: int) -> Tuple[float, float]:
         rhombus_bl = (self.bl[0] + 2*x*self.unit + y*self.unit, self.bl[1] - math.sqrt(3)*y*self.unit)
@@ -224,14 +232,16 @@ class Grid:
             return
 
         # Check if click location is a valid move location
+        player_location = self.player.get_location()
         if self.player:
-            for d in self.grid_adj(self.player.x, self.player.y, self.player.r):
+            for d in self.grid_adj(*player_location):
                 # Find all adjacent triangles
-                adj = self._add_dir(self.player.x, self.player.y, self.player.r, d)
+                adj = self._add_dir(*player_location, d)
 
                 # Can move to empty triangles
                 if clicked == adj and self.grid[adj].is_empty():
-                    self.move_object(self.player.x, self.player.y, self.player.r, d)
+                    self.move_object(*player_location, d)
+                    self.undo_stack.append(Move(adj, d))
                     return
 
                 # Can maybe move to pushable triangles
@@ -239,7 +249,7 @@ class Grid:
                     # Check adjacent triangles to the triangle you're pushing
                     for adj_d in self.grid_adj(*adj):
                         adj_adj = self._add_dir(*adj, adj_d)
-                        if adj_adj == (self.player.x, self.player.y, self.player.r):
+                        if adj_adj == player_location:
                             continue
 
                         # Can only push to empty triangles
@@ -247,7 +257,9 @@ class Grid:
                             # First move pushable object
                             self.move_object(*adj, adj_d)
                             # Then move player
-                            self.move_object(self.player.x, self.player.y, self.player.r, d)
+                            self.move_object(*player_location, d)
+
+                            self.undo_stack.append(Move(adj, d, adj_adj, adj_d))
                             return
 
     # Render the grid
@@ -306,9 +318,9 @@ class Grid:
         # Color grid based on player movement options
         color_grid = numpy.full([grid_x, grid_y, 2, 3], WHITE)
         if self.player:
-            for d in self.grid_adj(self.player.x, self.player.y, self.player.r):
+            for d in self.grid_adj(*self.player.get_location()):
                 # Find all adjacent triangles
-                adj = self._add_dir(self.player.x, self.player.y, self.player.r, d)
+                adj = self._add_dir(*self.player.get_location(), d)
 
                 # Can move to empty triangles
                 if self.grid[adj].is_empty():
@@ -321,7 +333,7 @@ class Grid:
                     if not moused_over:
                         for adj_d in self.grid_adj(*adj):
                             adj_adj = self._add_dir(*adj, adj_d)
-                            if adj_adj == (self.player.x, self.player.y, self.player.r):
+                            if adj_adj == self.player.get_location():
                                 continue
                                 
                             if adj_adj == (mouse_x, mouse_y, mouse_r):
@@ -331,7 +343,7 @@ class Grid:
                     can_push = False
                     for adj_d in self.grid_adj(*adj):
                         adj_adj = self._add_dir(*adj, adj_d)
-                        if adj_adj == (self.player.x, self.player.y, self.player.r):
+                        if adj_adj == self.player.get_location():
                             continue
 
                         # Can only push to empty triangles
@@ -363,7 +375,11 @@ class Grid:
 
     # Undo last move
     def undo(self):
-        pass
+        if len(self.undo_stack) > 0:
+            m = self.undo_stack.pop()
+            self.move_object(*m.player_end, m.player_dir)
+            if m.dice_end:
+                self.move_object(*m.dice_end, m.dice_dir)
 
     # Reset puzzle
     def reset(self):
