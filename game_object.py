@@ -86,8 +86,12 @@ class Dice(Object):
     def __init__(self, x_loc: int, y_loc: int, rad: int, faces: List[str]):
         super().__init__(x_loc, y_loc, rad)
         
-        # List of faces currently provided in the order [T, Y, R, X]; need to reorder
-        self.parse_face_list([faces[0], faces[3], faces[1], faces[2]])
+        if rad == 0:
+            # When faceup, list of faces provided in the order [T, Y, R, X]; need to reorder
+            self.parse_face_list([faces[0], faces[3], faces[1], faces[2]])
+        else:
+            # When faceup, list of faces provided in the order [T, X, R, Y]; need to reorder
+            self.parse_face_list([faces[0], faces[1], faces[3], faces[2]])
 
         self.value = None
         self.valid = None
