@@ -113,7 +113,6 @@ class Game:
         win_font = pygame.font.SysFont('Comic Sans MS', 100)
         text_surface = win_font.render("You Won!", False, (0, 0, 0))
         self.screen.blit(text_surface, (200, 200))
-
     # Quit
     def quit(self) -> None:
         self.running = False
@@ -160,7 +159,7 @@ class Game:
         while self.running:
             # Did the user click the window close button?
             if self.level_ui.grid:
-                if self.level_ui.grid.won:
+                if self.level_ui.grid.won and not self.paused:
                     self.render_winning()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
