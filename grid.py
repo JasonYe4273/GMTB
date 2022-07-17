@@ -361,3 +361,12 @@ class Grid:
                             color = LIGHT_BLUE
 
                     self.grid[x, y, r].render(color)
+
+
+    # Undo last move
+    def undo(self):
+        pass
+
+    # Reset puzzle
+    def reset(self):
+        pass

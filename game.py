@@ -136,9 +136,11 @@ class Game:
                             self.render_pause()
                         else:
                             self.unpause()
-                    elif self.state in self.levels and not self.paused and event.key == pygame.K_r:
-                        print("Moving in the R direction")
-                        self.grid.move_player(Direction.R)
+                    if self.state in self.levels and not self.paused:
+                        if event.key == pygame.K_u:
+                            self.grid.undo()
+                        elif event.key == pygame.K_r:
+                            self.grid.reset()
 
                 if event.type == pygame.MOUSEBUTTONDOWN and self.state in self.levels and not self.paused:
                     self.grid.handle_click(pygame.mouse.get_pos())
