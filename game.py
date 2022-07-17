@@ -175,8 +175,9 @@ class Game:
                         if event.key == pygame.K_u:
                             self.level_ui.grid.undo()
                         elif event.key == pygame.K_r:
-                            self.level_ui.grid.reset()
-
+                            self.clear_screen()
+                            level_spec = self.levels[self.state]
+                            self.level_ui.load_level_spec(level_spec)
                 if event.type == pygame.MOUSEBUTTONDOWN and self.state in self.levels and not self.paused:
                     self.level_ui.handle_click(pygame.mouse.get_pos())
 
