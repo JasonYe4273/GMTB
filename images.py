@@ -13,6 +13,7 @@ D4_RED_IMG = pygame.image.load('images/d4.png')
 D4_BLUE_IMG = pygame.image.load('images/d4blue.png') 
 D4_GREEN_IMG = pygame.image.load('images/d4green.png') 
 D4_YELLOW_IMG = pygame.image.load('images/d4yellow.png') 
+FRONT = pygame.image.load('images/front.png')
 LEVEL = [pygame.image.load('images/level1.png'),
          pygame.image.load('images/level2.png'),
          pygame.image.load('images/level3.png'),

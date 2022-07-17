@@ -18,7 +18,10 @@ class LevelUI(object):
         level_index = level_spec["level"] - 1
         self.background = images.LEVEL_BG[level_index]
         self.grid = Grid(level_spec["dim"][0], level_spec["dim"][1], self.screen, images.LEVEL[level_index])
-        self.grid.add_objects(level_spec["objects"])
+        if "objects" in level_spec:
+            self.grid.add_objects(level_spec["objects"])
+        if "weather" in level_spec:
+            self.grid.set_weather(level_spec["weather"])
 
     def handle_click(self, mouse_pos: tuple[float, float]) -> None:
         self.grid.handle_click(mouse_pos)
