@@ -84,20 +84,11 @@ class Triangle:
             else:
                 img = MOVE_ARROW
         elif arrow_type == 1:
-            if mouseover:
-                img = PUSH_ARROW_BOTH_HOVER
-            else:
-                img = PUSH_ARROW_BOTH
+            img = PUSH_ARROW_BOTH
         elif arrow_type == 2:
-            if mouseover:
-                img = pygame.transform.flip(PUSH_ARROW_RIGHT_HOVER, True, False)
-            else:
-                img = pygame.transform.flip(PUSH_ARROW_RIGHT, True, False)
+            img = pygame.transform.flip(PUSH_ARROW_RIGHT, True, False)
         elif arrow_type == 3:
-            if mouseover:
-                img = PUSH_ARROW_RIGHT_HOVER
-            else:
-                img = PUSH_ARROW_RIGHT
+            img = PUSH_ARROW_RIGHT
 
         if img:
             # Scale and rotate arrow image

@@ -14,9 +14,25 @@ D4_BLUE_IMG = pygame.image.load('images/d4blue.png')
 D4_GREEN_IMG = pygame.image.load('images/d4green.png') 
 D4_YELLOW_IMG = pygame.image.load('images/d4yellow.png') 
 LEVEL = [pygame.image.load('images/level1.png'),
+<<<<<<< HEAD
 		 pygame.image.load('images/level2.png'),
 		 pygame.image.load('images/level3.png'),
 		 pygame.image.load('images/level4.png'),
 		 pygame.image.load('images/level5.png'),
 		 pygame.image.load('images/level6.png'),
 		 pygame.image.load('images/level7.png')]
+=======
+         pygame.image.load('images/level2.png'),
+         pygame.image.load('images/level3.png'),
+         pygame.image.load('images/level4.png'),
+         pygame.image.load('images/level5.png'),
+         pygame.image.load('images/level6.png'),
+         pygame.image.load('images/level7.png')]
+LEVEL_BG = [pygame.image.load('images/level1_bg.png'),
+            pygame.image.load('images/level2_bg.png'),
+            pygame.image.load('images/level1_bg.png'),
+            pygame.image.load('images/level2_bg.png'),
+            pygame.image.load('images/level1_bg.png'),
+            pygame.image.load('images/level2_bg.png'),
+            pygame.image.load('images/level1_bg.png')]
+>>>>>>> 2ce46281f5913cd61672ebd4210af2df30ed18ac
