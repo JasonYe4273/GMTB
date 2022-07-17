@@ -1,7 +1,8 @@
 import pygame
 import math
+from typing import Tuple
 
-from images import PLAYER_IMG_0, PLAYER_IMG_1, WALL_IMG
+from images import *
 
 class Direction:
     X = 0
@@ -37,10 +38,10 @@ class Object:
             else:
                 self.y -= 1
 
-    def render(self, screen: pygame.Surface, left_corner: tuple[float, float], unit: float) -> None:
+    def render(self, screen: pygame.Surface, left_corner: Tuple[float, float], unit: float) -> None:
         pass
 
-    def render_static_image(self, screen: pygame.Surface, left_corner: tuple[float, float], unit: float, image: pygame.Surface) -> None:
+    def render_static_image(self, screen: pygame.Surface, left_corner: Tuple[float, float], unit: float, image: pygame.Surface) -> None:
         # Scale the image
         scaled_img = pygame.transform.scale(image, (2*unit, math.sqrt(3)*unit))
         if self.r == 0:
@@ -62,7 +63,7 @@ class Wall(Object):
     def __init__(self, x_loc: int, y_loc: int, rad: int):
         super().__init__(x_loc, y_loc, rad)
 
-    def render(self, screen: pygame.Surface, left_corner: tuple[float, float], unit: float) -> None:
+    def render(self, screen: pygame.Surface, left_corner: Tuple[float, float], unit: float) -> None:
         self.render_static_image(screen, left_corner, unit, WALL_IMG)
 
 
@@ -82,16 +83,15 @@ class Dice(Object):
         if d==Direction.R:
             self.current_face = self.faces[self.current_face][2]
 
-    def render(self, screen: pygame.Surface, left_corner: tuple[float, float], unit: float) -> None:
-        pass#self.render_static_image(screen, left_corner, unit, WALL_IMG)
-    
+    def render(self, screen: pygame.Surface, left_corner: Tuple[float, float], unit: float) -> None:
+        self.render_static_image(screen, left_corner, unit, D4_IMG)
 
 
 class Player(Object):
     def __init__(self, x_loc: int, y_loc: int, rad: int):
         super().__init__(x_loc, y_loc, rad)
 
-    def render(self, screen: pygame.Surface, left_corner: tuple[float, float], unit: float) -> None:
+    def render(self, screen: pygame.Surface, left_corner: Tuple[float, float], unit: float) -> None:
         if self.r == 0:
             self.render_static_image(screen, left_corner, unit, PLAYER_IMG_0)
         else:

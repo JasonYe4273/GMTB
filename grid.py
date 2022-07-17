@@ -3,6 +3,7 @@ import math
 import pygame
 from game_object import *
 from styles import *
+from typing import Tuple, Set
 
 class Direction:
     X = 0
@@ -20,10 +21,10 @@ class Triangle:
     r: int                              # r-coordinate in the grid
 
     screen: pygame.Surface              # pygame screen to render to
-    left_corner: tuple[float, float]    # pixel corner for the left corner of the triangle
+    left_corner: Tuple[float, float]    # pixel corner for the left corner of the triangle
     unit: float                         # pixel length of half of a triangle side
 
-    def __init__(self, x_loc: int, y_loc: int, rad: int, screen: pygame.Surface, left_corner: tuple[float, float], unit: float):
+    def __init__(self, x_loc: int, y_loc: int, rad: int, screen: pygame.Surface, left_corner: Tuple[float, float], unit: float):
         self.o = Empty(x_loc, y_loc, rad)
         self.x = x_loc
         self.y = y_loc
@@ -49,7 +50,7 @@ class Triangle:
         return type(self.o) == Dice
 
     # Render the triangle
-    def render(self, color: tuple[int, int, int]) -> None:
+    def render(self, color: Tuple[int, int, int]) -> None:
         pm = 1 if self.r == 1 else -1
         margin = self.unit*0.05
 
@@ -71,7 +72,7 @@ class Grid:
     grid: any                           # array of triangles representing the grid
 
     unit: float                         # unit length in pixels equal to half of a triangle side
-    bl: tuple[float, float]             # pixel coordinates for bottom left corner of the grid
+    bl: Tuple[float, float]             # pixel coordinates for bottom left corner of the grid
     screen: pygame.Surface              # pygame screen to render to
 
     player: Player                      # Player object
@@ -114,7 +115,7 @@ class Grid:
         return True
 
     # Get the coordinates shifted in that direction
-    def _add_dir(self, x: int, y: int, r: int, d: int) -> tuple[int, int, int]:
+    def _add_dir(self, x: int, y: int, r: int, d: int) -> Tuple[int, int, int]:
         if d == Direction.R:
             return (x, y, 1-r)
 
@@ -125,7 +126,7 @@ class Grid:
             return (x, y+pm, 1-r)
 
     # Get the dimensions of the grid
-    def shape(self) -> tuple[int, int]:
+    def shape(self) -> Tuple[int, int]:
         return (self.grid.shape[0], self.grid.shape[1])
 
     # Get the triangle at the given coordinates
@@ -144,9 +145,9 @@ class Grid:
         self.grid[x, y, r].set_object(o)
 
     # Get the directions adjacent to the given coordinates
-    def grid_adj(self, x: int, y: int, r: int) -> set[Direction]:
+    def grid_adj(self, x: int, y: int, r: int) -> Set[Direction]:
         self._verify_coord(x, y, r)
-        adj: set[Direction] = set()
+        adj: Set[Direction] = set()
 
         for d in DIRECTIONS:
             (x2, y2, r2) = self._add_dir(x, y, r, d)
@@ -195,7 +196,7 @@ class Grid:
 
 
     # Convert grid coordinates to pixel coordinates
-    def grid_to_screen_coord(self, x: int, y: int, r: int) -> tuple[float, float]:
+    def grid_to_screen_coord(self, x: int, y: int, r: int) -> Tuple[float, float]:
         rhombus_bl = (self.bl[0] + 2*x*self.unit + y*self.unit, self.bl[1] - math.sqrt(3)*y*self.unit)
 
         if r == 0:
@@ -204,7 +205,7 @@ class Grid:
             return (rhombus_bl[0] + self.unit, rhombus_bl[1] - math.sqrt(3)*self.unit)
 
     # Convert pixel coordinates to grid coordinates
-    def screen_to_grid_coord(self, coordinates: tuple[float, float]) -> tuple[int, int, int]:
+    def screen_to_grid_coord(self, coordinates: Tuple[float, float]) -> Tuple[int, int, int]:
         # Find the grid coordinates of the mouse
         grid_y = (self.bl[1] - coordinates[1]) / (math.sqrt(3)*self.unit)
         grid_x = (coordinates[0] - self.bl[0] - grid_y*self.unit) / (2*self.unit)
@@ -216,7 +217,7 @@ class Grid:
         return (x, y, r)
 
     # Handle mouse click
-    def handle_click(self, mouse_pos: tuple[float, float]) -> None:
+    def handle_click(self, mouse_pos: Tuple[float, float]) -> None:
         # Check that the mouse is in the grid
         clicked = self.screen_to_grid_coord(mouse_pos)
         if not self._verify_coord(*clicked, False):
@@ -250,7 +251,7 @@ class Grid:
                             return
 
     # Render the grid
-    def render_all(self, mouse_pos: tuple[float, float]) -> None:
+    def render_all(self, mouse_pos: Tuple[float, float]) -> None:
         (grid_x, grid_y) = self.shape()
 
         # Draw horizontals
@@ -340,12 +341,9 @@ class Grid:
                             if moused_over:
                                 color_grid[adj_adj] = GREEN
 
-                    # Blue if you can push and it's moused-over, otherwise green.
+                    # Blue if you can push.
                     if can_push:
-                        if moused_over:
-                            color_grid[adj] = BLUE
-                        else:
-                            color_grid[adj] = GREEN
+                        color_grid[adj] = BLUE
 
         # Render triangles
         shape = self.shape()
