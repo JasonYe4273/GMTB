@@ -267,7 +267,7 @@ class Grid:
                 self.player = Player(x, y, r)
                 self.set_object(self.player, x, y, r)
             elif o["type"] == "d4":
-                d4 = Dice(x, y, r, dict())
+                d4 = Dice(x, y, r, o["faces"])
                 self.set_object(d4, x, y, r)
             elif o["type"] == "wall":
                 wall = Wall(x, y, r)

@@ -1,8 +1,9 @@
 import pygame
 import math
-from typing import Tuple
+from typing import List, Tuple
 
 from images import *
+from styles import *
 
 class Direction:
     X = 0
@@ -72,34 +73,51 @@ class Wall(Object):
 
 
 class Dice(Object):
-    def __init__(self, x_loc: int, y_loc: int, rad: int, faces: dict):
-        super().__init__(x_loc, y_loc, rad)
-        # self.num = orientation.length
-        # self.faces = faces
-        # self.current_face = orientation[0]
-         
+    current_face: str
+    faces: dict
+    value: Optional[int]
 
-    def roll(d: Direction) -> None:
-        if d==Direction.X:
-            self.current_face = self.faces[self.current_face][0]    
-        if d==Direction.Y:
-            self.current_face = self.faces[self.current_face][1]
-        if d==Direction.R:
-            self.current_face = self.faces[self.current_face][2]
+    def __init__(self, x_loc: int, y_loc: int, rad: int, faces: List[str]):
+        super().__init__(x_loc, y_loc, rad)
+        
+        # Parse faces list
+        # List of faces will be provided in the order [T, X, Y, R]
+        self.current_face = faces[0]
+        self.faces = dict()
+        # When T is up, the order is [T, X, Y, R]
+        self.faces[faces[0]] = [faces[1], faces[2], faces[3]]
+        # When X is up, the order is [X, T, R, Y]
+        self.faces[faces[1]] = [faces[0], faces[3], faces[2]]
+        # When Y is up, the order is [Y, R, T, X]
+        self.faces[faces[2]] = [faces[3], faces[0], faces[1]]
+        # When R is up, the order is [R, Y, X, T]
+        self.faces[faces[3]] = [faces[2], faces[1], faces[0]]
+
+
+    def move(self, d: Direction) -> None:
+        super().move(d)
+        self.current_face = self.faces[self.current_face][d]
 
     def render(self, screen: pygame.Surface, left_corner: Tuple[float, float], unit: float) -> None:
         pygame.font.init()
-        my_font = pygame.font.SysFont('Comic Sans MS', int(unit/4))
-        text_surface_1 = my_font.render("s1", False, (0, 0, 0))
-        text_surface_x = my_font.render("sx", False, (0, 0, 0))
-        text_surface_y = my_font.render("sy", False, (0, 0, 0))
-        text_surface_r = my_font.render("sr", False, (0, 0, 0))
-        D4_IMG.blit(text_surface_1, (D4_IMG.get_width()/2, D4_IMG.get_height()/2))
-        D4_IMG.blit(text_surface_x, (D4_IMG.get_width()/4, D4_IMG.get_height()/2))
-        D4_IMG.blit(text_surface_y, (D4_IMG.get_width()/2, D4_IMG.get_height()*13/16))
-        D4_IMG.blit(text_surface_r, (D4_IMG.get_width()/32*21, D4_IMG.get_height()/2))
+        if self.x == 0:
+            print(self.current_face, *self.faces[self.current_face])
 
-        self.render_static_image(screen, left_corner, unit, D4_IMG)
+        main_font = pygame.font.SysFont('Comic Sans MS', int(unit/3))
+        xyr_font = pygame.font.SysFont('Comic Sans MS', int(unit/4))
+
+        text_surface_1 = main_font.render(self.current_face, False, PURPLE)
+        text_surface_x = xyr_font.render(self.faces[self.current_face][Direction.X], False, LIGHT_BLUE)
+        text_surface_y = xyr_font.render(self.faces[self.current_face][Direction.Y], False, LIGHT_BLUE)
+        text_surface_r = xyr_font.render(self.faces[self.current_face][Direction.R], False, LIGHT_BLUE)
+
+        img = D4_IMG.copy()
+        img.blit(text_surface_1, (img.get_width()/2, img.get_height()/2))
+        img.blit(text_surface_x, (img.get_width()*3/4, img.get_height()*3/4))
+        img.blit(text_surface_y, (img.get_width()*19/48, img.get_height()/5))
+        img.blit(text_surface_r, (img.get_width()/8, img.get_height()*29/32))
+
+        self.render_static_image(screen, left_corner, unit, img)
 
 class Player(Object):
     def __init__(self, x_loc: int, y_loc: int, rad: int):

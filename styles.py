@@ -7,6 +7,7 @@ LIGHT_GREEN = (8, 201, 60)
 BLACK = (0, 0, 0)
 GREY = (100, 100, 100)
 WHITE = (255, 255, 255)
+PURPLE = (76, 4, 128)
 
 BUTTON_STYLE = {
     "hover_color": BLUE,
