@@ -172,7 +172,7 @@ class Grid:
     tl: Tuple[float, float]             # pixel coordinates for top left corner of the grid
     screen: pygame.Surface              # pygame screen to render to
     bgimage: pygame.Surface             # background image for grid
-
+    won = False
     player: Player                      # Player object
     undo_stack: List[Move]              # Stack of moves for undo purposes
 
@@ -448,9 +448,7 @@ class Grid:
                 for r in range(2):
                     if not self.grid[x, y, r].o.validate():
                         won = False
-        if won:
-            print("You win!")
-
+        self.won = won
         # Render triangles
         for x in range(grid_x):
             for y in range(grid_y):
