@@ -90,9 +90,10 @@ class Triangle:
         # Render front if it exists
         if self.front:
             img = pygame.transform.scale(FRONT, (self.unit, self.unit/2))
-            if self.r == 1:
-                img = pygame.transform.rotate(img, 180)
-            self.screen.blit(img, left_corner)
+            self.screen.blit(img, (
+                self.left_corner[0] + self.unit/2,
+                self.left_corner[1] + (0.25 if self.r == 1 else -0.5)*math.sqrt(3)*self.unit
+            ))
             
         self.o.render(self.screen, self.left_corner, self.unit)
 
@@ -293,7 +294,7 @@ class Grid:
                 self.set_object(wall, x, y, r)
 
     # Set weather from level JSON
-    def set_weather(self, terrain: any) -> None:
+    def set_weather(self, weather: any) -> None:
         for w in weather:
             (x, y, r) = w["loc"]
             if w["type"] == "front":
