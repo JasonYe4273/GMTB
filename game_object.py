@@ -87,17 +87,17 @@ class Dice(Object):
         super().__init__(x_loc, y_loc, rad)
         
         # Parse faces list
-        # List of faces will be provided in the order [T, X, Y, R]
+        # List of faces will be provided in the order [T, Y, R, X]
         self.current_face = faces[0]
         self.faces = dict()
         # When T is up, the order is [T, X, Y, R]
-        self.faces[faces[0]] = [faces[1], faces[2], faces[3]]
+        self.faces[faces[0]] = [faces[3], faces[1], faces[2]]
         # When X is up, the order is [X, T, R, Y]
-        self.faces[faces[1]] = [faces[0], faces[3], faces[2]]
+        self.faces[faces[3]] = [faces[0], faces[2], faces[1]]
         # When Y is up, the order is [Y, R, T, X]
-        self.faces[faces[2]] = [faces[3], faces[0], faces[1]]
+        self.faces[faces[1]] = [faces[2], faces[0], faces[3]]
         # When R is up, the order is [R, Y, X, T]
-        self.faces[faces[3]] = [faces[2], faces[1], faces[0]]
+        self.faces[faces[2]] = [faces[1], faces[3], faces[0]]
 
         self.value = None
         self.valid = None
