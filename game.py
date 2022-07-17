@@ -90,7 +90,7 @@ class Game:
         if self.state == "menu":
             self.render_menu()
         elif self.state in self.levels:
-            self.render_level(self.state)
+            self.level_ui.render_all((0, 0))
 
     # Render pause screen
     def render_pause(self) -> None:
