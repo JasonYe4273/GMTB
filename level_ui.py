@@ -1,5 +1,6 @@
 
 import pygame
+import images
 from grid import Grid
 
 class LevelUI(object):
@@ -12,7 +13,7 @@ class LevelUI(object):
         self.grid = None
 
     def load_level_spec(self, level_spec: dict) -> None:
-        self.grid = Grid(level_spec["dim"][0], level_spec["dim"][1], self.screen)
+        self.grid = Grid(level_spec["dim"][0], level_spec["dim"][1], self.screen, images.LEVEL[level_spec["level"]-1])
         self.grid.add_objects(level_spec["objects"])
 
     def handle_click(self, mouse_pos: tuple[float, float]) -> None:

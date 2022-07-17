@@ -157,12 +157,14 @@ class Grid:
 
     unit: float                         # unit length in pixels equal to half of a triangle side
     bl: Tuple[float, float]             # pixel coordinates for bottom left corner of the grid
+    tl: Tuple[float, float]             # pixel coordinates for top left corner of the grid
     screen: pygame.Surface              # pygame screen to render to
+    bgimage: pygame.Surface             # background image for grid
 
     player: Player                      # Player object
     undo_stack: List[Move]              # Stack of moves for undo purposes
 
-    def __init__(self, width: int, height: int, screen: pygame.Surface):
+    def __init__(self, width: int, height: int, screen: pygame.Surface, bgimage: pygame.Surface):
         self.screen = screen
         self.grid = numpy.full((width, height, 2), None)
         self.player = None
@@ -177,7 +179,10 @@ class Grid:
         grid_w = self.unit * x
         grid_h = self.unit * y
 
+        self.tl = ((screen_w - grid_w) / 2, (screen_h - grid_h) / 2)
         self.bl = ((screen_w - grid_w) / 2, (screen_h + grid_h) / 2)
+
+        self.bgimage = pygame.transform.scale(bgimage, (grid_w, grid_h))
 
         for i in range(width):
             for j in range(height):
@@ -337,53 +342,10 @@ class Grid:
     def render_all(self, mouse_pos: Tuple[float, float]) -> None:
         (grid_x, grid_y) = self.shape()
 
-        # Draw horizontals
-        for j in range(grid_y+1):
-            x_offset = 2*grid_x*self.unit
-            y_offset = j*self.unit
-            pygame.draw.line(
-                self.screen,
-                BLACK,
-                (self.bl[0] + y_offset, self.bl[1] - math.sqrt(3)*y_offset),
-                (self.bl[0] + y_offset + x_offset, self.bl[1] - math.sqrt(3)*y_offset)
-            )
+        # Render background
+        self.screen.blit(self.bgimage, (self.tl[0], self.tl[1]))
 
-        # Draw long diagonals
-        for i in range(grid_x+1):
-            x_offset = 2*i*self.unit
-            y_offset = grid_y*self.unit
-            pygame.draw.line(
-                self.screen,
-                BLACK,
-                (self.bl[0] + x_offset, self.bl[1]),
-                (self.bl[0] + x_offset + y_offset, self.bl[1] - math.sqrt(3)*y_offset)
-            )
-
-        # Draw cross diagonals
-        for i in range(grid_x):
-            offset = i*self.unit
-            diag_length = min(grid_y, i)
-            back_offset = diag_length*self.unit
-
-            pygame.draw.line(
-                self.screen,
-                BLACK,
-                (self.bl[0] + 2*offset, self.bl[1]),
-                (self.bl[0] + 2*offset - back_offset, self.bl[1] - math.sqrt(3)*back_offset),
-            )
-        for i in range(grid_y):
-            br = (self.bl[0] + 2*grid_x*self.unit, self.bl[1])
-            diag_length = min(grid_x, grid_y - i)
-            back_offset = diag_length*self.unit
-
-            offset = i*self.unit
-            pygame.draw.line(
-                self.screen,
-                BLACK,
-                (br[0] + offset, br[1] - math.sqrt(3)*offset),
-                (br[0] + offset - back_offset, br[1] - math.sqrt(3)*offset - math.sqrt(3)*back_offset),
-            )
-
+        # Get player mouse coordinates
         (mouse_x, mouse_y, mouse_r) = self.screen_to_grid_coord(mouse_pos)
 
         # Arrow grid based on player movement options: arrows are represented by (direction, type)
