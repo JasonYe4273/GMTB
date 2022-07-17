@@ -145,7 +145,7 @@ class Grid:
         self.grid[x, y, r].set_object(o)
 
     # Get the directions adjacent to the given coordinates
-    def grid_adj(self, x: int, y: int, r: int) -> set[Direction]:
+    def grid_adj(self, x: int, y: int, r: int) -> Set[Direction]:
         self._verify_coord(x, y, r)
         adj: Set[Direction] = set()
 
