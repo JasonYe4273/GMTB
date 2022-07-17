@@ -12,12 +12,16 @@ class Direction:
 DIRECTIONS = [Direction.X, Direction.Y, Direction.R]
 
 class Object:
+    x: int
+    y: int
+    r: int
+    
     def __init__(self, x_loc: int, y_loc: int, rad: int):
         self.x = x_loc
         self.y = y_loc
         self.r = rad
 
-    def get_location(self) -> None:
+    def get_location(self) -> Tuple[int, int, int]:
         return (self.x, self.y, self.r)
 
     def set_location(self, x_loc: int, y_loc: int, rad: int) -> None:
