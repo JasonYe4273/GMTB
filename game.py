@@ -28,7 +28,7 @@ class Game:
 
         # Set up the drawing window
         self.screen = pygame.display.set_mode([1600, 900])
-        self.screen.set_caption('Thunder Bolt')
+        #self.screen.set_caption('Thunder Bolt')
         self.level_ui = LevelUI(self.screen)
 
         # Load all the levels
@@ -90,7 +90,7 @@ class Game:
         if self.state == "menu":
             self.render_menu()
         elif self.state in self.levels:
-            self.render_level(self.state)
+            self.level_ui.render_all((0, 0))
 
     # Render pause screen
     def render_pause(self) -> None:
