@@ -87,6 +87,13 @@ class Triangle:
 
     # Render the triangle
     def render(self, arrow_direction: int, arrow_type: int, mouseover: bool) -> None:
+        # Render front if it exists
+        if self.front:
+            img = pygame.transform.scale(FRONT, (self.unit, self.unit/2))
+            if self.r == 1:
+                img = pygame.transform.rotate(img, 180)
+            self.screen.blit(img, left_corner)
+            
         self.o.render(self.screen, self.left_corner, self.unit)
 
         # Determine arrow type
