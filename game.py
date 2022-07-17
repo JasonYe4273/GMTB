@@ -4,8 +4,7 @@ import json
 from functools import partial
 from pygame_button import Button
 
-from grid import Grid
-from game_object import Object, Player, Dice, Wall, Direction
+from level_ui import LevelUI
 from styles import BUTTON_STYLE, WHITE, GREY, RED
 
 # Import and initialize the pygame library
@@ -21,21 +20,20 @@ class Game:
     paused: bool
     state: str
 
-    grid: Grid
+    level_ui: LevelUI
 
     def __init__(self):
         pygame.init()
 
         # Set up the drawing window
         self.screen = pygame.display.set_mode([1600, 900])
+        self.level_ui = LevelUI(self.screen)
 
         # Load all the levels
         self.load_levels()
 
         self.paused = False
         self.state = "menu"
-
-        self.grid = None
 
         # Render the menu
         self.render_menu()
@@ -63,8 +61,7 @@ class Game:
 
         level_spec = self.levels[level_name]
 
-        self.grid = Grid(level_spec["dim"][0], level_spec["dim"][1], self.screen)
-        self.grid.add_objects(level_spec["objects"])
+        self.level_ui.load_level_spec(level_spec)
 
     # Render the menu
     def render_menu(self) -> None:
@@ -138,12 +135,12 @@ class Game:
                             self.unpause()
                     if self.state in self.levels and not self.paused:
                         if event.key == pygame.K_u:
-                            self.grid.undo()
+                            self.level_ui.grid.undo()
                         elif event.key == pygame.K_r:
-                            self.grid.reset()
+                            self.level_ui.grid.reset()
 
                 if event.type == pygame.MOUSEBUTTONDOWN and self.state in self.levels and not self.paused:
-                    self.grid.handle_click(pygame.mouse.get_pos())
+                    self.level_ui.handle_click(pygame.mouse.get_pos())
 
                 for b in self.buttons:
                     b.check_event(event)
@@ -153,7 +150,7 @@ class Game:
 
             if self.state in self.levels and not self.paused:
                 self.clear_screen()
-                self.grid.render_all(pygame.mouse.get_pos())
+                self.level_ui.render_all(pygame.mouse.get_pos())
 
             # Display the screen
             pygame.display.update()
