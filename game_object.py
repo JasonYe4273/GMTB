@@ -49,6 +49,9 @@ class Object:
     def calc_value(self, input_num: Optional[int]=None) -> Optional[int]:
         return None
 
+    def validate(self) -> bool:
+        return True
+
     def render(self, screen: pygame.Surface, left_corner: Tuple[float, float], unit: float) -> None:
         pass
 
@@ -145,6 +148,9 @@ class Dice(Object):
             self._set_value(int(self.current_face))
 
         return self.value
+
+    def validate(self) -> bool:
+        return self.valid == True
 
     def render(self, screen: pygame.Surface, left_corner: Tuple[float, float], unit: float) -> None:
         pygame.font.init()

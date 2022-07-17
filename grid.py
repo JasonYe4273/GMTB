@@ -453,6 +453,16 @@ class Grid:
                     if v is not None:
                         self.proprogate_values((x, y, r), v, used)
 
+        # Check if won
+        won = True
+        for x in range(grid_x):
+            for y in range(grid_y):
+                for r in range(2):
+                    if not self.grid[x, y, r].o.validate():
+                        won = False
+        if won:
+            print("You win!")
+
         # Render triangles
         for x in range(grid_x):
             for y in range(grid_y):
