@@ -62,8 +62,8 @@ class Game:
         self.state = level_name
 
         level_spec = self.levels[level_name]
-
         self.level_ui.load_level_spec(level_spec)
+        self.level_ui.render_all((0, 0))
 
     # Render the menu
     def render_menu(self) -> None:
